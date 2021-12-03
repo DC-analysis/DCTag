@@ -1,5 +1,5 @@
-|DCTag|
-=======
+DCTag
+=====
 **DCTag** is a graphical toolkit for manually annotating RT-DC events
 for machine-learning purposes.
 
