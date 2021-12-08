@@ -208,16 +208,27 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QWidget" name="deformation_area_plot" native="true"/>
+       <widget class="PlotWidget" name="deformation_area_plot" native="true"/>
       </item>
       <item>
-       <widget class="QWidget" name="brightness_area_plot" native="true"/>
+       <widget class="PlotWidget" name="brightness_area_plot" native="true"/>
+      </item>
+      <item>
+       <widget class="PlotWidget" name="brightness_sd_brightness_plot" native="true"/>
       </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PlotWidget</class>
+   <extends>QWidget</extends>
+   <header>pyqtgraph</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

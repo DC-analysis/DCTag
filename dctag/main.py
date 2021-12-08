@@ -29,16 +29,6 @@ class DCTag(QtWidgets.QMainWindow):
         self.actionSoftware.triggered.connect(self.on_action_software)
         self.actionAbout.triggered.connect(self.on_action_about)
 
-        self.widget_binary = binary.BinaryView(self)
-        self.layout_binary = QtWidgets.QVBoxLayout()
-        self.binary.setLayout(self.layout_binary)
-        self.layout_binary.addWidget(self.widget_binary)
-
-        self.widget_session = session.SessionView(self)
-        self.layout_session = QtWidgets.QVBoxLayout()
-        self.session.setLayout(self.layout_session)
-        self.layout_session.addWidget(self.widget_session)
-
         # if "--version" was specified, print the version and exit
         if "--version" in sys.argv:
             print(__version__)
@@ -141,6 +131,3 @@ def excepthook(etype, value, trace):
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 # Display exception hook in separate dialog instead of crashing
 sys.excepthook = excepthook
-
-if __name__ == '__main__':
-    DCTag()
