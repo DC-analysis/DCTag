@@ -118,6 +118,9 @@ class DCTagSession:
             feat_list = self.scores.setdefault(feature, [])
             feat_list.append((index, value))
             # history
+            # (Note that this count value may be larger then the actual
+            # updated number of events of the ml_score, because `feat_list`
+            # may have multiple entries with the same index. This is OK).
             key = f"{feature} count {value}"
             self.history.setdefault(key, 0)
             self.history[key] += 1
