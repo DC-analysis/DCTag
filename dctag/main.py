@@ -13,6 +13,7 @@ from PyQt5 import uic, QtCore, QtWidgets
 
 from ._version import version as __version__
 
+
 class DCTag(QtWidgets.QMainWindow):
     def __init__(self, check_update=True):
         super(DCTag, self).__init__()
