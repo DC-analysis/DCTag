@@ -4,10 +4,7 @@ from PyQt5 import QtWidgets, uic
 
 
 class TabBinaryLabel(QtWidgets.QWidget):
-    """
-    Class for the extraction widget
-    """
-
+    """Tab for doing binary classification"""
     def __init__(self, *args, **kwargs):
         super(TabBinaryLabel, self).__init__(*args, **kwargs)
 
