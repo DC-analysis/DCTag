@@ -4,16 +4,16 @@ from PyQt5 import QtWidgets, uic
 import dclab
 
 
-class SessionView(QtWidgets.QWidget):
+class TabSessionInfo(QtWidgets.QWidget):
     """
     Class for the extraction widget
     """
 
     def __init__(self, *args, **kwargs):
-        super(SessionView, self).__init__(*args, **kwargs)
+        super(TabSessionInfo, self).__init__(*args, **kwargs)
 
         ui_file = pkg_resources.resource_filename(
-            'dctag.gui.session', 'session_view.ui')
+            'dctag.gui', 'tab_session.ui')
         uic.loadUi(ui_file, self)
 
     def update_session(self, session):

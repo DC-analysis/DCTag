@@ -3,16 +3,16 @@ import pkg_resources
 from PyQt5 import QtWidgets, uic
 
 
-class BinaryView(QtWidgets.QWidget):
+class TabBinaryLabel(QtWidgets.QWidget):
     """
     Class for the extraction widget
     """
 
     def __init__(self, *args, **kwargs):
-        super(BinaryView, self).__init__(*args, **kwargs)
+        super(TabBinaryLabel, self).__init__(*args, **kwargs)
 
         ui_file = pkg_resources.resource_filename(
-            'dctag.gui.binary', 'binary_view.ui')
+            'dctag.gui', 'tab_binary.ui')
         uic.loadUi(ui_file, self)
 
     def update_session(self, session):

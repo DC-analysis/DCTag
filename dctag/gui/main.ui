@@ -23,12 +23,12 @@
       <property name="currentIndex">
        <number>1</number>
       </property>
-      <widget class="SessionView" name="tab_session">
+      <widget class="TabSessionInfo" name="tab_session">
        <attribute name="title">
         <string>Session Info</string>
        </attribute>
       </widget>
-      <widget class="BinaryView" name="tab_binary">
+      <widget class="TabBinaryLabel" name="tab_binary">
        <attribute name="title">
         <string>Binary Classification</string>
        </attribute>
@@ -103,15 +103,15 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>BinaryView</class>
+   <class>TabBinaryLabel</class>
    <extends>QWidget</extends>
-   <header>dctag.gui.binary</header>
+   <header>dctag.gui.tab_binary</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SessionView</class>
+   <class>TabSessionInfo</class>
    <extends>QWidget</extends>
-   <header>dctag.gui.session</header>
+   <header>dctag.gui.tab_session</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
