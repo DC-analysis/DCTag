@@ -52,7 +52,7 @@ class DCTagSession:
         network share that has been remounted during rating.
         """
         self.path = pathlib.Path(path)
-        self.path_lock = self.path.with_suffix("dctag")
+        self.path_lock = self.path.with_suffix(".dctag")
         self.user = user.strip()
         # determine length of the dataset
         with dclab.new_dataset(self.path) as ds:
@@ -72,12 +72,19 @@ class DCTagSession:
                 f"Somebody else is currently working on {self.path} or "
                 + "DCTag exited unexpectedly in a previous run! Please ask "
                 + "Paul to implement session recovery!")
+        else:
+            self.path_lock.touch()
 
     def __enter__(self):
         return self
 
-    def __exit__(self, tb, e, t, c):
+    def __exit__(self, type, value, traceback):
+        self.close()
+
+    def close(self):
+        """Close this session"""
         self.flush()
+        self.path_lock.unlink()
 
     def flush(self):
         """Flush all changes made to disk
