@@ -105,13 +105,13 @@
   <customwidget>
    <class>BinaryView</class>
    <extends>QWidget</extends>
-   <header>dctag.binary</header>
+   <header>dctag.gui.binary</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SessionView</class>
    <extends>QWidget</extends>
-   <header>dctag.session</header>
+   <header>dctag.gui.session</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
