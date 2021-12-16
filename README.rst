@@ -13,10 +13,35 @@ the virtual environment is active)::
 
 For Developers
 --------------
-Activate your virtual environment and install DCTag in editable mode,
-i.e. in the root of the repository, run::
+Here is how we manage contributions:
+
+1. Fork this repository.
+2. Create an issue or open the issue that you want to address.
+3. Assign yourself to that issue so nobody else is working on it.
+4. Verify that nobody else is currently working an an issue that might
+   interfer with your issue (e.g. editing same part of a file)
+5. Clone into your fork and make sure your fork is up-to-date with the current `main` branch::
+
+      git remote add upstream https://gitlab.gwdg.de/blood_data_analysis/dctag
+      git fetch upstream
+      git checkout main
+      git reset --hard upstream/main
+      git push origin main --force
+
+6. Activate your virtual environment and install dctag in editable mode
 
     pip install -e .
+
+7. Create a new branch that starts with your issue number and short description::
+
+      git branch 15-keyboard-control
+
+8. Make your changes and commit.
+
+      git commit -a -m "feat: introduced keyboard control"
+      git push
+
+9. Go to you fork and create a merge request. Assign Paul to it.
 
 
 Testing
