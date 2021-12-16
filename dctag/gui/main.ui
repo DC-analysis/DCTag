@@ -21,14 +21,14 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
-      <widget class="SessionView" name="session">
+      <widget class="SessionView" name="tab_session">
        <attribute name="title">
         <string>Session Info</string>
        </attribute>
       </widget>
-      <widget class="BinaryView" name="binary">
+      <widget class="BinaryView" name="tab_binary">
        <attribute name="title">
         <string>Binary Classification</string>
        </attribute>
@@ -43,7 +43,7 @@
      <x>0</x>
      <y>0</y>
      <width>1112</width>
-     <height>24</height>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

@@ -14,3 +14,6 @@ class BinaryView(QtWidgets.QWidget):
         ui_file = pkg_resources.resource_filename(
             'dctag.gui.binary', 'binary_view.ui')
         uic.loadUi(ui_file, self)
+
+    def update_session(self, session):
+        """Update this widget with the session info"""

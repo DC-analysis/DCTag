@@ -5,12 +5,11 @@ import sys
 import traceback
 
 import dclab
-
 import h5py
 import numpy
-
 from PyQt5 import uic, QtCore, QtWidgets
 
+from .. import session
 from .._version import version as __version__
 
 
@@ -27,6 +26,12 @@ class DCTag(QtWidgets.QMainWindow):
         # Help menu
         self.actionSoftware.triggered.connect(self.on_action_software)
         self.actionAbout.triggered.connect(self.on_action_about)
+
+        # tabwidget
+        self.tabWidget.currentChanged.connect(self.on_tab_changed)
+
+        #: holds the current DCTagSession instance
+        self.session = None
 
         # if "--version" was specified, print the version and exit
         if "--version" in sys.argv:
@@ -54,7 +59,7 @@ class DCTag(QtWidgets.QMainWindow):
                 f"Can only open one file at a time, got {len(urls)}!")
         elif urls:
             pp = pathlib.Path(urls[0].toLocalFile())
-            self.open_session(pp)
+            self.session_open(pp)
 
     @QtCore.pyqtSlot()
     def on_action_about(self):
@@ -71,7 +76,7 @@ class DCTag(QtWidgets.QMainWindow):
             '',
             'RT-DC data (*.rtdc)')
         if path:
-            self.open_session(path)
+            self.session_open(path)
 
     @QtCore.pyqtSlot()
     def on_action_software(self):
@@ -91,9 +96,52 @@ class DCTag(QtWidgets.QMainWindow):
                                           "Software",
                                           sw_text)
 
-    def open_session(self, path_rtdc):
+    @QtCore.pyqtSlot()
+    def on_tab_changed(self):
+        curtab = self.tabWidget.currentWidget()
+        curtab.update_session(self.session)
+
+    def session_close(self):
+        if self.session is None:
+            success = True
+        else:
+            try:
+                self.session.flush()
+            except session.DCTagSessionWriteError as e:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Cannot close previous session",
+                    "For some reason, it is not possible to close the current "
+                    + f"session'{self.session.path}', so I will not open a "
+                    + "new session. Details:<br><br>"
+                    + e.args[-1]
+                )
+                success = False
+            else:
+                self.session.close()
+                self.session = None
+                success = True
+        return success
+
+    def session_open(self, path_rtdc):
         """Load an .rtdc file into the user interface"""
-        print(f"user wants to load session: {path_rtdc}")
+        if self.session_close():
+            try:
+                self.session = session.DCTagSession(path=path_rtdc,
+                                                    user="unknown",
+                                                    linked_features=[])
+            except session.DCTagSessionWrongUserError as e:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Cannot load session",
+                    "You are trying to open a session from another user. This "
+                    + "is not supported yet. These are the details:<br><br>"
+                    + e.args[-1]
+                )
+            else:
+                # Go to session tab and update info
+                self.tabWidget.setCurrentIndex(0)
+                self.on_tab_changed()
 
 
 def excepthook(etype, value, trace):
@@ -114,6 +162,7 @@ def excepthook(etype, value, trace):
     exception = "".join([vinfo]+tmp)
 
     errorbox = QtWidgets.QMessageBox()
+    errorbox.setIcon(QtWidgets.QMessageBox.Critical)
     errorbox.addButton(QtWidgets.QPushButton('Close'),
                        QtWidgets.QMessageBox.YesRole)
     errorbox.addButton(QtWidgets.QPushButton(

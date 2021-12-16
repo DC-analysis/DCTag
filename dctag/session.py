@@ -79,6 +79,11 @@ class DCTagSession:
         self.path = pathlib.Path(path)
         #: Lock-file for this session
         self.path_lock = self.path.with_suffix(".dctag")
+        if self.path_lock.exists():
+            raise DCTagSessionLockedError(
+                f"Somebody else is currently working on {self.path} or "
+                + "DCTag exited unexpectedly in a previous run! Please ask "
+                + "Paul to implement session recovery!")
         #: Session user
         self.user = user.strip()
         #: scoring features that are linked for labeling
@@ -96,16 +101,16 @@ class DCTagSession:
                         + f"got '{h5user}'!")
             else:
                 with dclab.RTDCWriter(h5) as hw:
-                    hw.store_log("dctag-history", f"User: {self.user}")
+                    hw.store_log("dctag-history", f"user: {self.user}")
             # While we are at it, note down the linked features in this
             # particular session.
             with dclab.RTDCWriter(h5) as hw:
                 hw.store_log(
                     "dctag-history",
-                    [time.strftime(f"New session at %Y-%m-%d %H:%M:%S"),
+                    [time.strftime("new session at %Y-%m-%d %H:%M:%S"),
                      f"DCTag {version}",
-                     f"Linked features: {self.linked_features}",
-                    ])
+                     f"linked features: {self.linked_features}",
+                     ])
         # determine length of the dataset
         with dclab.new_dataset(self.path) as ds:
             #: Number of events in the dataset
@@ -132,13 +137,14 @@ class DCTagSession:
         #: list of (feature, index, score) in the order set by the user
         self.scores = []
 
-        if self.path_lock.exists():
-            raise DCTagSessionLockedError(
-                f"Somebody else is currently working on {self.path} or "
-                + "DCTag exited unexpectedly in a previous run! Please ask "
-                + "Paul to implement session recovery!")
-        else:
-            self.path_lock.touch()
+        # finally, acquire the file system lock
+        self.path_lock.touch()
+
+    def __del__(self):
+        try:
+            self.close()
+        except BaseException:
+            pass
 
     def __enter__(self):
         return self
