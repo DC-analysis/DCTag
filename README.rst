@@ -3,6 +3,13 @@ DCTag
 **DCTag** is a graphical toolkit for manually annotating RT-DC events
 for machine-learning purposes.
 
+Running DCTag
+-------------
+If installed properly, a simple ``dctag`` should work. Otherwise (make sure
+the virtual environment is active)::
+
+    python -m dctag
+
 
 For Developers
 --------------
@@ -10,6 +17,14 @@ Activate your virtual environment and install DCTag in editable mode,
 i.e. in the root of the repository, run::
 
     pip install -e .
+
+
+Testing
+-------
+To run all tests, install the requirements and run pytest::
+
+    pip install -r tests/requirements.txt
+    pytest tests
 
 
 Distribution to Users
@@ -31,11 +46,4 @@ We may want to have some kind of CI that builds an installer at some
 point. For that, we can reuse the scripts in:
 https://github.com/ZELLMECHANIK-DRESDEN/DCKit/tree/master/build-recipes
 
-
-Running DCTag
--------------
-If installed properly, a simple ``dctag`` should work. Otherwise (make sure
-the virtual environment is active)::
-
-    python -m dctag
 
