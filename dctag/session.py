@@ -23,7 +23,7 @@ class SessionWriteError(BaseException):
 
 
 class DCTagSession:
-    def __init__(self, path, user):
+    def __init__(self, path, user, linked_features=None):
         """Initialize a DCTag session
 
         Parameters
@@ -35,6 +35,20 @@ class DCTagSession:
             The input file `path` will be bound to that username,
             making it impossible to edit the same .rtdc file using
             a different username.
+        linked_features: list of str
+            List for "ml_scores_" features that should be treated as
+            linked when writing scores to disk. E.g. if you have the
+            linked features 'ml_score_rbc' and 'ml_score_wbc', then
+            the followin applies:
+
+            - Setting the score of 'rbc' to True implies that the score
+              of 'wbc' is False.
+            - However, setting the score of 'rbc' to False, does not
+              imply that the score of 'wbc' is True.
+
+            Thus, if you are using this feature for labeling multiple
+            scores, make sure to always only set True scores (so the
+            other scores get set to False).
 
         Notes
         -----
@@ -54,6 +68,8 @@ class DCTagSession:
         self.path = pathlib.Path(path)
         self.path_lock = self.path.with_suffix(".dctag")
         self.user = user.strip()
+        #: scoring features that are linked for labeling
+        self.linked_features = linked_features
         # determine length of the dataset
         with dclab.new_dataset(self.path) as ds:
             #: Number of events in the dataset
@@ -63,9 +79,8 @@ class DCTagSession:
         self.score_lock = threading.Lock()
         #: simple key-value dictionary of the current session history
         self.history = {}
-        #: keys are `ml_score_` features and values are tuples of
-        #: (index, score).
-        self.scores = {}
+        #: list of (feature, index, score) in the order set by the user
+        self.scores = []
 
         if self.path_lock.exists():
             raise SessionLockedError(
@@ -124,10 +139,9 @@ class DCTagSession:
                 f"Expected 'ml_score_xxx' feature, got '{feature}'!")
         with self.score_lock:
             # scores
-            feat_list = self.scores.setdefault(feature, [])
-            feat_list.append((index, value))
+            self.scores.append((feature, index, value))
             # history
-            # (Note that this count value may be larger then the actual
+            # (Note that this count value may be larger than the actual
             # updated number of events of the ml_score, because `feat_list`
             # may have multiple entries with the same index. This is OK).
             key = f"{feature} count {value}"
@@ -179,12 +193,24 @@ class DCTagSession:
         """
         if self.scores:
             with h5py.File(self.path, mode="a") as h5:
-                for feat in self.scores:
-                    if feat not in h5["events"]:
-                        # create a nan-filled dataset for this feature
-                        data = np.zeros(self.event_count, dtype=float) * np.nan
-                        h5["events"].create_dataset(feat, data=data)
-                    for (idx, val) in self.scores[feat]:
-                        h5["events"][feat][idx] = val
+                for feat, idx, val in self.scores:
+                    sc_ds = self.require_score_dataset(h5, feat)
+                    sc_ds[idx] = val
+                    # Write False to the other linked features
+                    if (val is True
+                        and self.linked_features
+                            and feat in self.linked_features):
+                        for ft in self.linked_features:
+                            ln_sc_ds = self.require_score_dataset(h5, ft)
+                            if ft != feat:
+                                ln_sc_ds[idx] = False
             if clear_scores:
                 self.scores.clear()
+
+    def require_score_dataset(self, h5, feature):
+        """Return dataset in the `h5["events"]` group for `feature`"""
+        if feature not in h5["events"]:
+            # create a nan-filled dataset for this feature
+            data = np.zeros(self.event_count, dtype=float) * np.nan
+            h5["events"].create_dataset(feature, data=data)
+        return h5["events"][feature]

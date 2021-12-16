@@ -56,12 +56,10 @@ def test_set_score_lists_and_history():
         dts.set_score("ml_score_abc", 2, False)
         dts.set_score("ml_score_abc", 1, True)
         dts.set_score("ml_score_abd", 3, True)
-        assert dts.scores["ml_score_abc"][0] == (0, True)
-        assert dts.scores["ml_score_abc"][1] == (2, False)
-        assert dts.scores["ml_score_abc"][2] == (1, True)
-        assert len(dts.scores["ml_score_abc"]) == 3
-        assert len(dts.scores["ml_score_abd"]) == 1
-        assert dts.scores["ml_score_abd"][0] == (3, True)
+        assert dts.scores[0] == ("ml_score_abc", 0, True)
+        assert dts.scores[1] == ("ml_score_abc", 2, False)
+        assert dts.scores[2] == ("ml_score_abc", 1, True)
+        assert dts.scores[3] == ("ml_score_abd", 3, True)
         assert dts.history["ml_score_abc count True"] == 2
         assert dts.history["ml_score_abc count False"] == 1
         assert dts.history["ml_score_abd count True"] == 1
@@ -103,3 +101,50 @@ def test_set_score_multiple_ratings_for_index():
         dctaglog = "\n".join(ds.logs["dctag-history"])
         assert "ml_score_abc count True: 1" in dctaglog
         assert "ml_score_abc count False: 2" in dctaglog
+
+
+def test_set_score_with_linked_features():
+    path = get_clean_data_path()
+    linked = ["ml_score_001", "ml_score_002"]
+    with session.DCTagSession(path, "Peter", linked_features=linked) as dts:
+        dts.set_score("ml_score_001", 0, True)
+        dts.set_score("ml_score_ot1", 0, False)
+
+        dts.set_score("ml_score_ot1", 1, True)
+        dts.set_score("ml_score_ot2", 1, False)
+        dts.set_score("ml_score_002", 1, True)
+
+        dts.set_score("ml_score_001", 2, True)
+        dts.set_score("ml_score_002", 2, False)
+
+        dts.set_score("ml_score_002", 3, True)
+        dts.set_score("ml_score_001", 3, True)
+
+        dts.set_score("ml_score_ot1", 4, True)
+        dts.set_score("ml_score_001", 4, False)
+
+    with dclab.new_dataset(path) as ds:
+        assert ds["ml_score_001"][0] == 1
+        assert ds["ml_score_002"][0] == 0
+        assert ds["ml_score_ot1"][0] == 0
+        assert np.isnan(ds["ml_score_ot2"][0])
+
+        assert ds["ml_score_001"][1] == 0
+        assert ds["ml_score_002"][1] == 1
+        assert ds["ml_score_ot1"][1] == 1
+        assert ds["ml_score_ot2"][1] == 0
+
+        assert ds["ml_score_001"][2] == 1
+        assert ds["ml_score_002"][2] == 0
+        assert np.isnan(ds["ml_score_ot1"][2])
+        assert np.isnan(ds["ml_score_ot2"][2])
+
+        assert ds["ml_score_001"][3] == 1
+        assert ds["ml_score_002"][3] == 0
+        assert np.isnan(ds["ml_score_ot1"][3])
+        assert np.isnan(ds["ml_score_ot2"][3])
+
+        assert ds["ml_score_001"][4] == 0
+        assert np.isnan(ds["ml_score_002"][4])
+        assert ds["ml_score_ot1"][4] == 1
+        assert np.isnan(ds["ml_score_ot2"][4])
