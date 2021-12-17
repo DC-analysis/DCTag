@@ -43,7 +43,7 @@
        </layout>
       </item>
       <item>
-       <widget class="SimpleImageView" name="image_zoom"/>
+       <widget class="SimpleImageView" name="image_cropped"/>
       </item>
      </layout>
     </widget>
@@ -57,7 +57,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Measurement</string>
+      <string>Overview</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>

@@ -1,7 +1,9 @@
 import functools
 import pkg_resources
 
+import numpy as np
 from PyQt5 import QtWidgets, uic
+from scipy.ndimage import binary_erosion
 
 import dclab
 
@@ -17,12 +19,19 @@ class WidgetVisualize(QtWidgets.QWidget):
 
         self.session = None
 
+    @functools.lru_cache(maxsize=900)
+    def get_feature_data(self, feature):
+        with dclab.new_dataset(self.session.path) as ds:
+            return ds[feature][:]
+
     @functools.lru_cache(maxsize=50)
     def get_event_data(self, index):
         # is this too slow?
         with dclab.new_dataset(self.session.path) as ds:
+            pxs = ds.config["imaging"]["pixel size"]
             data = {"image": ds["image"][index],
-                    "contour": ds["contour"][index]
+                    "mask": ds["mask"][index],
+                    "pos_x_px": self.get_feature_data("pos_x")[index] / pxs,
                     }
         return data
 
@@ -30,6 +39,7 @@ class WidgetVisualize(QtWidgets.QWidget):
         if self.session is not session:
             # clear the event image cache
             self.get_event_data.cache_clear()
+            self.get_feature_data.cache_clear()
             self.session = session
         if self.session is None:
             self.setEnabled(False)
@@ -40,11 +50,47 @@ class WidgetVisualize(QtWidgets.QWidget):
             self.session = session
             data = self.get_event_data(event_index)
             # Plot the channel images
+            # raw image
             self.image_channel.setImage(data["image"])
-            # TODO:
-            # - plot one image with contour
-            # - plot square cutout in right plot
+            # image with contour
+            image_contour = get_contour_image(data)
+            self.image_channel_contour.setImage(image_contour)
+            # cropped image
+            image_cropped = get_cropped_image(data)
+            self.image_cropped.setImage(image_cropped)
             # Plot the scatter plots
             # TODO:
             # - scatter plots should be plotted initially
             # - only position of current index should be changed (fast)
+
+
+def get_contour_image(event_data):
+    image = event_data["image"]
+    mask = event_data["mask"]
+    cellimg = np.copy(image)
+    cellimg = cellimg.reshape(
+        cellimg.shape[0], cellimg.shape[1], 1)
+    cellimg = np.repeat(cellimg, 3, axis=2)
+    # clip and convert to int
+    cellimg = np.clip(cellimg, 0, 255)
+    cellimg = np.require(cellimg, np.uint8, 'C')
+    # Compute contour image from mask. If you are wondering
+    # whether this is kosher, please take a look at issue #76:
+    # https://github.com/ZELLMECHANIK-DRESDEN/dclab/issues/76
+    cont = mask ^ binary_erosion(mask)
+    # set red contour pixel values in original image
+    cellimg[cont, 0] = int(255 * .7)
+    cellimg[cont, 1] = 0
+    cellimg[cont, 2] = 0
+    return cellimg
+
+
+def get_cropped_image(event_data):
+    image = event_data["image"]
+    pos_lat = int(event_data["pos_x_px"])
+    width = image.shape[0]
+    left = max(0, pos_lat - width // 2)
+    left = min(left, image.shape[1] - width)
+    right = left + width
+    cropped = image[:, left:right]
+    return cropped
