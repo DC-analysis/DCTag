@@ -13,18 +13,25 @@ class TabBinaryLabel(QtWidgets.QWidget):
             'dctag.gui', 'tab_binary.ui')
         uic.loadUi(ui_file, self)
 
-        self.feature = "ml_score_abc"
         self.session = None
         self.event_index = 0
 
-        # Signals
+        # signals
+        self.pushButton_start.clicked.connect(self.on_start)
         self.pushButton_next.clicked.connect(self.on_event_button)
         self.pushButton_prev.clicked.connect(self.on_event_button)
         self.pushButton_yes.clicked.connect(self.on_event_button)
         self.pushButton_no.clicked.connect(self.on_event_button)
 
+    @property
+    def feature(self):
+        return "ml_score_abc"
+
     def update_session(self, session):
         """Update this widget with the session info"""
+        # Whenever the user leaves and comes back to this tab, he has
+        # to lock-in again to label data.
+        self.lock_out()
         if self.session is not session:
             self.session = session
             self.event_index = 0
@@ -66,21 +73,41 @@ class TabBinaryLabel(QtWidgets.QWidget):
             self.label_score_next.setText("")
 
         # indicate current score label
-        current_score = self.session.get_score(self.feature, index)
-        if np.isnan(current_score):
-            yes = "Yes"
-            no = "No"
-        elif current_score:
-            yes = "[Yes]"
-            no = "No"
-        else:
-            yes = "Yes"
-            no = "[No]"
+        yes = "Yes"
+        no = "No"
+        if self.feature:
+            current_score = self.session.get_score(self.feature, index)
+            if not np.isnan(current_score):
+                if current_score:
+                    yes = "[Yes]"
+                else:
+                    no = "[No]"
         self.pushButton_no.setText(no)
         self.pushButton_yes.setText(yes)
 
+        # update progress bar
+        if self.feature:
+            scores = self.session.scores_cache.get(self.feature, [])
+            num_rated = np.floor(np.sum(~np.isnan(scores)))
+            perc = int(num_rated / self.session.event_count) * 100
+            self.progressBar.setValue(perc)
+
         # visualization
         self.widget_vis.set_event(self.session, index)
+
+    def lock_in(self):
+        """Begin labeling"""
+        self.pushButton_start.setVisible(False)
+        self.comboBox_score.setEnabled(False)
+        self.progressBar.setVisible(True)
+        self.widget_label_keys.setEnabled(True)
+
+    def lock_out(self):
+        """Stop labeling"""
+        self.pushButton_start.setVisible(True)
+        self.comboBox_score.setEnabled(True)
+        self.progressBar.setVisible(False)
+        self.widget_label_keys.setEnabled(False)
 
     @QtCore.pyqtSlot()
     def on_event_button(self):
@@ -95,3 +122,7 @@ class TabBinaryLabel(QtWidgets.QWidget):
         elif btn is self.pushButton_yes:
             self.session.set_score(self.feature, self.event_index, True)
             self.goto_event(self.event_index + 1)
+
+    @QtCore.pyqtSlot()
+    def on_start(self):
+        self.lock_in()
