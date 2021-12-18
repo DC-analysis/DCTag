@@ -8,6 +8,22 @@ from scipy.ndimage import binary_erosion
 import dclab
 
 
+#: dictionary with default axes limits for these features
+LIMITS_FEAT = {
+    "deform": [0.0, 0.5],
+    "area_um": [10, 130],
+    "bright_avg": [70, 140],
+    "bright_sd": [5, 35],
+}
+
+#: list with scatter plot axis features (there are three)
+SCATTER_FEAT = [
+    ["area_um", "deform"],
+    ["area_um", "bright_avg"],
+    ["bright_sd", "bright_avg"],
+]
+
+
 class WidgetVisualize(QtWidgets.QWidget):
     """Widget for visualizing data"""
     def __init__(self, *args, **kwargs):
@@ -33,7 +49,7 @@ class WidgetVisualize(QtWidgets.QWidget):
                     "mask": ds["mask"][index],
                     "pos_x_px": self.get_feature_data("pos_x")[index] / pxs,
                     }
-            for feat in ["area_um", "deform", "bright_avg", "bright_sd"]:
+            for feat in LIMITS_FEAT:
                 data[feat] = self.get_feature_data(feat)[index]
         return data
 
@@ -62,21 +78,21 @@ class WidgetVisualize(QtWidgets.QWidget):
             image_cropped = get_cropped_image(data)
             self.image_cropped.setImage(image_cropped)
             # Plot event in the scatter plots
-            for plot, featx, featy in [
-                [self.scatter_1, "area_um", "deform"],
-                [self.scatter_2, "area_um", "bright_avg"],
-                [self.scatter_3, "area_um", "bright_sd"],
-            ]:
+            for plot, [featx, featy] in zip(
+                    [self.scatter_1, self.scatter_2, self.scatter_3],
+                    SCATTER_FEAT):
                 plot.set_event(data[featx], data[featy])
 
     def update_scatter_plots(self):
-        for plot, featx, featy in [
-            [self.scatter_1, "area_um", "deform"],
-            [self.scatter_2, "area_um", "bright_avg"],
-            [self.scatter_3, "area_um", "bright_sd"],
-        ]:
+        for plot, [featx, featy] in zip(
+                [self.scatter_1, self.scatter_2, self.scatter_3],
+                SCATTER_FEAT):
             plot.set_scatter(self.get_feature_data(featx),
                              self.get_feature_data(featy))
+            plot.setXRange(*LIMITS_FEAT[featx])
+            plot.setYRange(*LIMITS_FEAT[featy])
+            plot.setLabel('bottom', dclab.dfn.get_feature_label(featx))
+            plot.setLabel('left', dclab.dfn.get_feature_label(featy))
 
 
 def get_contour_image(event_data):
