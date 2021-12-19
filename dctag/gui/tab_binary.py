@@ -94,8 +94,8 @@ class TabBinaryLabel(QtWidgets.QWidget):
 
         # update progress bar
         if self.feature:
-            scores = self.session.scores_cache.get(self.feature, [])
-            num_rated = np.floor(np.sum(~np.isnan(scores)))
+            fscores = self.session.scores_cache.get(self.feature, [])
+            num_rated = np.floor(np.sum(~np.isnan(fscores)))
             perc = int(num_rated / self.session.event_count) * 100
             self.progressBar.setValue(perc)
 
@@ -108,6 +108,9 @@ class TabBinaryLabel(QtWidgets.QWidget):
         self.comboBox_score.setEnabled(False)
         self.progressBar.setVisible(True)
         self.widget_label_keys.setEnabled(True)
+        main = QtWidgets.QApplication.activeWindow()
+        label = scores.get_feature_label(self.feature)
+        main.set_title(f"{self.feature[-3:].upper()}: {label}")
 
     def lock_out(self):
         """Stop labeling"""

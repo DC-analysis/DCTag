@@ -12,7 +12,7 @@ from PyQt5 import uic, QtCore, QtWidgets
 import pyqtgraph as pg
 
 from .. import session
-from .._version import version as __version__
+from .._version import version
 
 
 # global plotting configuration parameters
@@ -62,7 +62,7 @@ class DCTag(QtWidgets.QMainWindow):
         # initialize UI
         path_ui = pkg_resources.resource_filename("dctag.gui", "main.ui")
         uic.loadUi(path_ui, self)
-        self.setWindowTitle("DCTag {}".format(__version__))
+        self.set_title()
         # Disable native menubar (e.g. on Mac)
         self.menubar.setNativeMenuBar(False)
         # File menu
@@ -81,14 +81,13 @@ class DCTag(QtWidgets.QMainWindow):
 
         # if "--version" was specified, print the version and exit
         if "--version" in sys.argv:
-            print(__version__)
+            print(version)
             QtWidgets.QApplication.processEvents(
                 QtCore.QEventLoop.AllEvents, 300)
             sys.exit(0)
         self.show()
         self.raise_()
         self.activateWindow()
-        self.setWindowState(QtCore.Qt.WindowState.WindowActive)
 
     def closeEvent(self, event):
         if self.session_close():
@@ -116,9 +115,7 @@ class DCTag(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def on_action_about(self):
         about_text = "DCTag: Annotate .rtdc files for ML training"
-        QtWidgets.QMessageBox.about(self,
-                                    "DCTag {}".format(__version__),
-                                    about_text)
+        QtWidgets.QMessageBox.about(self, f"DCTag {version}", about_text)
 
     @QtCore.pyqtSlot()
     def on_action_close(self):
@@ -148,7 +145,7 @@ class DCTag(QtWidgets.QMainWindow):
                 h5py,
                 numpy,
                 ]
-        sw_text = "DCTag {}\n\n".format(__version__)
+        sw_text = "DCTag {}\n\n".format(version)
         sw_text += "Python {}\n\n".format(sys.version)
         sw_text += "Modules:\n"
         for lib in libs:
@@ -164,6 +161,7 @@ class DCTag(QtWidgets.QMainWindow):
     def on_tab_changed(self):
         curtab = self.tabWidget.currentWidget()
         curtab.update_session(self.session)
+        self.set_title()
 
     def session_close(self):
         if self.session is None:
@@ -208,6 +206,13 @@ class DCTag(QtWidgets.QMainWindow):
                 self.tabWidget.setCurrentIndex(0)
                 self.on_tab_changed()
 
+    def set_title(self, task=None):
+        if task is None:
+            title = f"DCTag {version}"
+        else:
+            title = f"{task} [DCTag {version}]"
+        self.setWindowTitle(title)
+
 
 def excepthook(etype, value, trace):
     """
@@ -221,8 +226,8 @@ def excepthook(etype, value, trace):
         prints the standard Python header: ``Traceback (most recent
         call last)``.
     """
-    vinfo = "Unhandled exception in DCTag version {}:\n".format(
-        __version__)
+    vinfo = f"Unhandled exception in DCTag version {version}:\n"
+    traceback.print_exc()
     tmp = traceback.format_exception(etype, value, trace)
     exception = "".join([vinfo]+tmp)
 

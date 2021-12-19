@@ -1,6 +1,8 @@
 0.0.3
  - feat: implement binary classification story (multiple issues)
  - feat: ask for username and remember it in settings (#14)
+ - enh: print all exceptions to STDOUT
+ - enh: modify title when doing binary classification
  - setup: require Python 3.8 or higher
  - setup: bump dclab to 0.39.7
 0.0.2
