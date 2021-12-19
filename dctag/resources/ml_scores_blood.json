@@ -1,0 +1,65 @@
+{
+  "ml_score_r1f": {
+    "label": "RBC singlet focused"
+    },
+  "ml_score_r1u": {
+    "label": "RBC singlet unfocused"
+    },
+  "ml_score_r20": {
+    "label": "RBC doublet"
+    },
+  "ml_score_r30": {
+    "label": "RBC triplet"
+    },
+  "ml_score_rn0": {
+    "label": "RBC multiple"
+    },
+  "ml_score_l10": {
+    "label": "WBC singlet Lymphocytes"
+    },
+  "ml_score_g10": {
+    "label": "WBC singlet Granulomonocyte"
+    },
+  "ml_score_g1n": {
+    "label": "WBC singlet Neutrophil"
+    },
+  "ml_score_g1e": {
+    "label": "WBC singlet Eosinophil"
+    },
+  "ml_score_g1b": {
+    "label": "WBC singlet Basophil"
+    },
+  "ml_score_g1m": {
+    "label": "WBC singlet Monocytes"
+    },
+  "ml_score_wn0": {
+    "label": "WBC multiple"
+    },
+  "ml_score_t1f": {
+    "label": "Thrombocyte singlet focused"
+    },
+  "ml_score_t1u": {
+    "label": "Thrombocyte singlet unfocused"
+    },
+  "ml_score_tn0": {
+    "label": "Thrombocyte multiple"
+    },
+  "ml_score_m20": {
+    "label": "Mixed cell doublet"
+    },
+  "ml_score_m30": {
+    "label": "Mixed cell triplet"
+    },
+  "ml_score_mn0": {
+    "label": "Mixed cell multiple"
+    },
+  "ml_score_ds0": {
+    "label": "Small debris"
+    },
+  "ml_score_dl0": {
+    "label": "Large debris"
+    },
+  "ml_score_buk": {
+    "label": "Other/unknown"
+    }
+}

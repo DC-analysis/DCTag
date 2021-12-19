@@ -3,6 +3,8 @@ import pkg_resources
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, uic
 
+from .. import scores
+
 
 class TabBinaryLabel(QtWidgets.QWidget):
     """Tab for doing binary classification"""
@@ -16,6 +18,11 @@ class TabBinaryLabel(QtWidgets.QWidget):
         self.session = None
         self.event_index = 0
 
+        # populate ML scores combobox
+        self.comboBox_score.clear()
+        for feat in scores.get_dctag_score_dict("blood"):
+            self.comboBox_score.addItem(scores.get_feature_label(feat), feat)
+
         # signals
         self.pushButton_start.clicked.connect(self.on_start)
         self.pushButton_next.clicked.connect(self.on_event_button)
@@ -25,7 +32,8 @@ class TabBinaryLabel(QtWidgets.QWidget):
 
     @property
     def feature(self):
-        return "ml_score_abc"
+        print(self.comboBox_score.currentData())
+        return self.comboBox_score.currentData()
 
     def update_session(self, session):
         """Update this widget with the session info"""

@@ -1,7 +1,7 @@
 include CHANGELOG
 include LICENSE
 include README.rst
-recursive-include dctag *.png *.ui
+recursive-include dctag *.png *.ui *.json
 recursive-include tests *.zip *.md *.py *.txt
 prune docs/_build
 
