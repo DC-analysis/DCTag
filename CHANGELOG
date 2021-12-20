@@ -1,6 +1,7 @@
 0.0.4
  - feat: implement keyboard shortcuts (#15)
  - feat: automatically flush session in background every 60s (#12)
+ - feat: remember data location (#20)
  - fix: don't clutter the logs
 0.0.3
  - feat: implement binary classification story (multiple issues)
