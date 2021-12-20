@@ -3,6 +3,7 @@ import pathlib
 import pkg_resources
 import signal
 import sys
+import time
 import traceback
 
 import dclab
@@ -89,6 +90,14 @@ class DCTag(QtWidgets.QMainWindow):
         self.raise_()
         self.activateWindow()
 
+        # flush session regularly
+        if bool(int(self.settings.value("debug/without timers", "0"))):
+            self.timer = None
+        else:
+            self.timer = QtCore.QTimer()
+            self.timer.timeout.connect(self.session_flush_statusbar)
+            self.timer.start(60000)
+
     def closeEvent(self, event):
         if self.session_close():
             event.accept()
@@ -164,7 +173,7 @@ class DCTag(QtWidgets.QMainWindow):
         self.set_title()
 
     def session_close(self):
-        if self.session is None:
+        if not self.session:
             success = True
         else:
             try:
@@ -183,6 +192,23 @@ class DCTag(QtWidgets.QMainWindow):
                 self.session = None
                 success = True
         return success
+
+    def session_flush_statusbar(self):
+        """Flush the session, writing all changes to the file
+
+        If any errors occur, this is written to the status bar.
+        """
+        if self.session:
+            date = time.strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                self.session.flush()
+            except BaseException as e:
+                self.statusBar().showMessage(
+                    f"{date} Saving failed with {e.__class__.__name__}: {e}")
+                self.statusBar().setStyleSheet("color: red")
+            else:
+                self.statusBar().showMessage(f"{date} Session flushed.", 3000)
+                self.statusBar().setStyleSheet("")
 
     def session_open(self, path_rtdc):
         """Load an .rtdc file into the user interface"""

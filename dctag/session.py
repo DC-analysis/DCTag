@@ -131,6 +131,10 @@ class DCTagSession:
         # keep track of whether we still have an open session
         self._closed = False
 
+    def __bool__(self):
+        """Convenience function; allows you to use `if session` case"""
+        return not self._closed
+
     def __enter__(self):
         return self
 

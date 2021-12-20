@@ -1,6 +1,7 @@
 0.0.4
- - fix: don't clutter the logs
  - feat: implement keyboard shortcuts (#15)
+ - feat: automatically flush session in background every 60s (#12)
+ - fix: don't clutter the logs
 0.0.3
  - feat: implement binary classification story (multiple issues)
  - feat: ask for username and remember it in settings (#14)
