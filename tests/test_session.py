@@ -131,6 +131,65 @@ def test_get_score_linked():
         assert np.isnan(dts.get_score("ml_score_000", 5))
 
 
+def test_log_user():
+    """At the beginning, onle the user should be written"""
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        pass
+    with dclab.new_dataset(path) as ds:
+        assert "".join(ds.logs["dctag-history"]).strip() == "user: Peter"
+
+
+def test_log_basic():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_abc", 0, True)
+        dts.set_score("ml_score_abc", 1, True)
+        dts.set_score("ml_score_abc", 0, False)
+
+    expected = [
+        "user: Peter",
+        "",
+        "New session with DCTag ",
+        "Linked features: []",
+        "ml_score_abc count False: 1",
+        "ml_score_abc count True: 2",
+    ]
+
+    with dclab.new_dataset(path) as ds:
+        for line, exp in zip(ds.logs["dctag-history"], expected):
+            assert exp in line
+
+
+def test_log_linked_features():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_abc", 0, True)
+        dts.set_score("ml_score_abc", 1, True)
+        dts.set_score("ml_score_abc", 0, False)
+        dts.linked_features = ["ml_score_abc", "ml_score_456"]
+        dts.set_score("ml_score_abc", 2, True)
+        dts.set_score("ml_score_456", 3, True)
+
+    expected = [
+        "user: Peter",
+        "",
+        "New session with DCTag ",
+        "Linked features: []",
+        "ml_score_abc count False: 1",
+        "ml_score_abc count True: 2",
+        "",
+        "New session with DCTag ",
+        "Linked features: ['ml_score_456', 'ml_score_abc']",
+        "ml_score_456 count True: 1",
+        "ml_score_abc count True: 1",
+    ]
+
+    with dclab.new_dataset(path) as ds:
+        for line, exp in zip(ds.logs["dctag-history"], expected):
+            assert exp in line
+
+
 def test_set_score_wrong_feature_error():
     path = get_clean_data_path()
     with session.DCTagSession(path, "Peter") as dts:
@@ -239,6 +298,31 @@ def test_set_score_with_linked_features():
         assert np.isnan(ds["ml_score_002"][4])
         assert ds["ml_score_ot1"][4] == 1
         assert np.isnan(ds["ml_score_ot2"][4])
+
+
+def test_session_multiple_with_linked_features():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_abc", 0, True)
+        dts.set_score("ml_score_abc", 1, True)
+        dts.set_score("ml_score_abc", 0, False)
+        dts.linked_features = ["ml_score_abc", "ml_score_456"]
+        dts.set_score("ml_score_abc", 2, True)
+        dts.set_score("ml_score_456", 3, True)
+
+    with dclab.new_dataset(path) as ds:
+        assert ds["ml_score_abc"][0] == 0
+        assert ds["ml_score_abc"][1] == 1
+        assert ds["ml_score_abc"][2] == 1
+        assert ds["ml_score_abc"][3] == 0
+
+        # unless a method is implemented that does "autocompletion",
+        # we should not touch these.
+        assert np.isnan(ds["ml_score_456"][0])
+        assert np.isnan(ds["ml_score_456"][1])
+        # from linked session:
+        assert ds["ml_score_456"][2] == 0
+        assert ds["ml_score_456"][3] == 1
 
 
 def test_session_error_closed_flush():
