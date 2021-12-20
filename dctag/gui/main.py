@@ -255,9 +255,9 @@ def excepthook(etype, value, trace):
         call last)``.
     """
     vinfo = f"Unhandled exception in DCTag version {version}:\n"
-    traceback.print_exc()
     tmp = traceback.format_exception(etype, value, trace)
     exception = "".join([vinfo]+tmp)
+    print(exception)
 
     errorbox = QtWidgets.QMessageBox()
     errorbox.setIcon(QtWidgets.QMessageBox.Critical)
