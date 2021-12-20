@@ -84,6 +84,9 @@ class DCTagSession:
         original .rtdc file, even if e.g. the original file is on a
         network share that has been remounted during rating.
         """
+        #: Lock used internally to avoid writing to `history` and `scores`
+        #: while saving data in `flush`
+        self.score_lock = threading.Lock()
         #: Session path
         self.path = pathlib.Path(path)
         #: Lock-file for this session
@@ -95,31 +98,18 @@ class DCTagSession:
                 + "Paul to implement session recovery!")
         #: Session user
         self.user = user.strip()
-        #: scoring features that are linked for labeling
-        self.linked_features = linked_features or []
+        # Whether session info has been written to the dctag-history log
+        self._session_info_in_log_up_to_date = False
+        # list of linked features (see self.linked_features)
+        self._linked_features = []
         # claim this file
-        with h5py.File(self.path, "a") as h5:
-            if "dctag-history" in h5.require_group("logs"):
-                h5userstr = h5["logs"]["dctag-history"][0]
-                if isinstance(h5userstr, bytes):
-                    h5userstr = h5userstr.decode("utf-8")
-                h5user = h5userstr.split(":")[1].strip()
-                if h5user != self.user:
-                    raise DCTagSessionWrongUserError(
-                        f"Expected user '{self.user}' in '{self.path}', but "
-                        + f"got '{h5user}'!")
-            else:
-                with dclab.RTDCWriter(h5) as hw:
-                    hw.store_log("dctag-history", f"user: {self.user}")
-            # While we are at it, note down the linked features in this
-            # particular session.
-            with dclab.RTDCWriter(h5) as hw:
-                hw.store_log(
-                    "dctag-history",
-                    [time.strftime("new session at %Y-%m-%d %H:%M:%S"),
-                     f"DCTag {version}",
-                     f"linked features: {self.linked_features}",
-                     ])
+        self._claim_path()
+        #: simple key-value dictionary of the current session history
+        self.history = {}
+        #: list of (feature, index, score) in the order set by the user
+        self.scores = []
+        #: scoring features that are linked for labeling
+        self.linked_features = linked_features
         # determine length of the dataset
         with dclab.new_dataset(self.path) as ds:
             #: Number of events in the dataset
@@ -131,31 +121,74 @@ class DCTagSession:
         #: path is temporarily not available.
         self.scores_cache = {}
         with h5py.File(self.path, "a") as h5:
-            # initialize advertised scores in the .rtdc file
-            for feat in self.linked_features:
-                self.require_h5_score_dataset(h5, feat)
             # make a copy of all available scores in self.scores_cache
             for feat in h5["events"]:
                 if feat.startswith("ml_score_"):
                     self.scores_cache[feat] = np.copy(h5["events"][feat])
-        #: Lock used internally to avoid writing to `history` and `scores`
-        #: while saving data in `flush`
-        self.score_lock = threading.Lock()
-        #: simple key-value dictionary of the current session history
-        self.history = {}
-        #: list of (feature, index, score) in the order set by the user
-        self.scores = []
 
         # finally, acquire the file system lock
         self.path_lock.touch()
         # keep track of whether we still have an open session
         self._closed = False
 
+    def __bool__(self):
+        """Convenience function; allows you to use `if session` case"""
+        return not self._closed
+
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
         self.close()
+
+    def _claim_path(self):
+        """Attribute this file to self.user"""
+        with h5py.File(self.path, "a") as h5:
+            if "dctag-history" in h5.require_group("logs"):
+                if len(h5["logs"]["dctag-history"]) == 0:
+                    # We have an empty log, replace it.
+                    hw = dclab.RTDCWriter(h5, mode="replace")
+                    hw.store_log("dctag-history", f"user: {self.user}")
+                else:
+                    h5userstr = h5["logs"]["dctag-history"][0]
+                    if isinstance(h5userstr, bytes):
+                        h5userstr = h5userstr.decode("utf-8")
+                    if h5userstr.startswith("user:"):
+                        h5user = h5userstr.split(":")[1].strip()
+                        if h5user != self.user:
+                            raise DCTagSessionWrongUserError(
+                                f"Expected user '{self.user}' in "
+                                + f"'{self.path}', got '{h5user}'!")
+                    else:
+                        # Something went wrong (maybe lost history).
+                        # Reinstate the claim!
+                        h5["logs"]["dctag-history"][0] = f"user: {self.user}"
+            else:
+                with dclab.RTDCWriter(h5) as hw:
+                    hw.store_log("dctag-history", f"user: {self.user}")
+
+    @property
+    def linked_features(self):
+        return self._linked_features
+
+    @linked_features.setter
+    def linked_features(self, linked_features):
+        # Acquire a score_lock, because labeling might go on
+        # in another thread and we want the correct history.
+        with self.score_lock:
+            linked_features = linked_features or []
+            if self._linked_features == linked_features:
+                # nothing to do
+                pass
+            else:
+                # write the scores and history now
+                self.write_history(clear_history=True)
+                self.write_scores(clear_scores=True)
+                # make sure the session info is written to the logs
+                # in the next call to self.write_history
+                self._session_info_in_log_up_to_date = False
+                # finally, set the linked features internally
+                self._linked_features = sorted(linked_features)
 
     def assert_session_open(self, purpose="perform an undefined task",
                             strict=False):
@@ -182,6 +215,18 @@ class DCTagSession:
                     + "there is nothing that needs to be written to disk, but "
                     + "you should try to avoid this anyway.",
                     DCTagSessionClosedWarning)
+
+    def backup_scores(self, path):
+        """Backup current scores in an HDF5 file
+
+        This can be used as a last resort to save score data if
+        the original `self.path` has gone away for some reason.
+        """
+        with h5py.File(path, mode="w") as h5:
+            with self.score_lock:
+                for feat in self.scores_cache:
+                    h5[feat] = self.scores_cache[feat]
+                h5.attrs["path_original"] = str(self.path)
 
     def close(self):
         """Close this session, flushing everything to `self.path`"""
@@ -274,10 +319,10 @@ class DCTagSession:
             self.history.setdefault(key, 0)
             self.history[key] += 1
 
-            # internal score cache
-            if feature not in self.scores_cache:
-                self.scores_cache[feature] \
-                    = np.zeros(self.event_count, dtype=float) * np.nan
+            for feat in self.linked_features:
+                self.require_dict_score_dataset(self.scores_cache, feat)
+            self.require_dict_score_dataset(self.scores_cache, feature)
+
             self.scores_cache[feature][index] = value
             self.populate_linked_features(
                 feature=feature,
@@ -302,14 +347,18 @@ class DCTagSession:
         This method is NOT thread-safe. Use `self.flush` instead!
         """
         if self.history:
+            date = time.strftime("%Y-%m-%d %H:%M:%S")
             with dclab.RTDCWriter(self.path, mode="append") as hw:
-                hw.store_log(
-                    "dctag-history",
-                    time.strftime(
-                        f".Update at %Y-%m-%d %H:%M:%S ({self.user})"))
+                if not self._session_info_in_log_up_to_date:
+                    hw.store_log(
+                        "dctag-history",
+                        ["",
+                         f"{date} New session with DCTag {version}",
+                         f"{date} Linked features: {self.linked_features}"
+                         ])
                 for key in sorted(self.history.keys()):
                     hw.store_log("dctag-history",
-                                 f"..{key}: {self.history[key]}")
+                                 f"{date} {key}: {self.history[key]}")
             if clear_history:
                 # clear history
                 self.history.clear()
@@ -328,7 +377,11 @@ class DCTagSession:
         This method is NOT thread-safe. Use `self.flush` instead!
         """
         if self.scores:
-            with h5py.File(self.path, mode="a") as h5:
+            with h5py.File(self.path, mode="r+") as h5:
+                # make sure that all linked features are available
+                for feat in self.linked_features:
+                    self.require_h5_score_dataset(h5, feat)
+                # populate features
                 for feat, idx, val in self.scores:
                     sc_ds = self.require_h5_score_dataset(h5, feat)
                     sc_ds[idx] = val
@@ -350,6 +403,13 @@ class DCTagSession:
             h5["events"].create_dataset(feature, data=data)
         return h5["events"][feature]
 
+    def require_dict_score_dataset(self, ndict, feature):
+        """Return dataset in `ndict` for `feature`"""
+        # internal score cache
+        if feature not in ndict:
+            ndict[feature] = np.zeros(self.event_count, dtype=float) * np.nan
+        return ndict[feature]
+
     def populate_linked_features(self, feature, index, value,
                                  linked_feature_dict):
         """Set values in linked_feature_dict to False if value is True
@@ -364,3 +424,9 @@ class DCTagSession:
                 if feat != feature:
                     ln_sc_ds = linked_feature_dict[feat]
                     ln_sc_ds[index] = False
+
+
+def is_dctag_session(path):
+    """Return True if `path` has a dctag-history log"""
+    with h5py.File(path, "r") as h5:
+        return "logs/dctag-history" in h5

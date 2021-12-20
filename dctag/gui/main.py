@@ -3,6 +3,7 @@ import pathlib
 import pkg_resources
 import signal
 import sys
+import time
 import traceback
 
 import dclab
@@ -69,6 +70,9 @@ class DCTag(QtWidgets.QMainWindow):
         self.actionOpen.triggered.connect(self.on_action_open)
         self.actionQuit.triggered.connect(self.on_action_quit)
         self.actionClose.triggered.connect(self.on_action_close)
+        # Session menu
+        self.actionFlushSession.triggered.connect(self.on_action_flush)
+        self.actionBackupSession.triggered.connect(self.on_action_backup)
         # Help menu
         self.actionSoftware.triggered.connect(self.on_action_software)
         self.actionAbout.triggered.connect(self.on_action_about)
@@ -88,6 +92,14 @@ class DCTag(QtWidgets.QMainWindow):
         self.show()
         self.raise_()
         self.activateWindow()
+
+        # flush session regularly
+        if bool(int(self.settings.value("debug/without timers", "0"))):
+            self.timer = None
+        else:
+            self.timer = QtCore.QTimer()
+            self.timer.timeout.connect(self.session_flush_statusbar)
+            self.timer.start(60000)
 
     def closeEvent(self, event):
         if self.session_close():
@@ -118,6 +130,43 @@ class DCTag(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.about(self, f"DCTag {version}", about_text)
 
     @QtCore.pyqtSlot()
+    def on_action_backup(self):
+        """Create an .rtdc file with the current history and score cache"""
+        reply = QtWidgets.QMessageBox.question(
+            self,
+            "Do you know what you are doing?",
+            "You are about to export your ML scores to an HDF5 file. "
+            + "Normally, you do not need to do this. You may want to, if you "
+            + "are not able to flush the current session (e.g. because you "
+            + "have your .rtdc file on a network share and there is no "
+            + "connectivity). Proceed?"
+        )
+        if reply == QtWidgets.QMessageBox.Yes:
+            # First attempt to flush the session again.
+            try:
+                self.session.flush()
+            except BaseException:
+                pass  # never mind
+            # Open a dialog for the user to save the scores as an .hdf5 file
+            po, _ = QtWidgets.QFileDialog.getSaveFileName(
+                self, 'Path to new ML score file', '', 'HDF5 file (*.h5)')
+            if po:
+                po = pathlib.Path(po)
+                # make sure the suffix is .h5
+                if po.suffix != ".h5":
+                    po = po.with_name(po.name + ".h5")
+                self.session.backup_scores(po)
+            # Ask the user whether to close DCTag now
+            reply2 = QtWidgets.QMessageBox.question(
+                self,
+                "Close DCTag now?",
+                "You have saved your scores and somebody with sufficient "
+                + "experience will be able to append them to the original "
+                + "file (if that still exists). Close DCTag now?")
+            if reply2 == QtWidgets.QMessageBox.Yes:
+                QtCore.QCoreApplication.quit()
+
+    @QtCore.pyqtSlot()
     def on_action_close(self):
         self.session_close()
         # Go to session tab and update info
@@ -125,19 +174,26 @@ class DCTag(QtWidgets.QMainWindow):
         self.on_tab_changed()
 
     @QtCore.pyqtSlot()
+    def on_action_flush(self):
+        if self.session:
+            self.session.flush()
+
+    @QtCore.pyqtSlot()
     def on_action_open(self):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self,
             'Select RT-DC data',
-            '',
+            self.settings.value("paths/open", ""),
             'RT-DC data (*.rtdc)')
         if path:
+            self.settings.setValue(
+                "paths/open", str(pathlib.Path(path).parent))
             self.session_open(path)
 
     @QtCore.pyqtSlot()
     def on_action_quit(self):
-        self.on_action_close()
-        QtCore.QCoreApplication.quit()
+        if self.session_close():
+            QtCore.QCoreApplication.quit()
 
     @QtCore.pyqtSlot()
     def on_action_software(self):
@@ -164,7 +220,7 @@ class DCTag(QtWidgets.QMainWindow):
         self.set_title()
 
     def session_close(self):
-        if self.session is None:
+        if not self.session:
             success = True
         else:
             try:
@@ -184,27 +240,61 @@ class DCTag(QtWidgets.QMainWindow):
                 success = True
         return success
 
+    def session_flush_statusbar(self):
+        """Flush the session, writing all changes to the file
+
+        If any errors occur, this is written to the status bar.
+        """
+        if self.session:
+            date = time.strftime("%Y-%m-%d %H:%M:%S")
+            try:
+                self.session.flush()
+            except BaseException as e:
+                self.statusBar().showMessage(
+                    f"{date} Saving failed with {e.__class__.__name__}: {e}")
+                self.statusBar().setStyleSheet("color: red")
+            else:
+                self.statusBar().showMessage(f"{date} Session flushed.", 3000)
+                self.statusBar().setStyleSheet("")
+
     def session_open(self, path_rtdc):
         """Load an .rtdc file into the user interface"""
         if self.session_close():
-            try:
-                user = self.settings.value("user/name", None)
-                assert user
-                self.session = session.DCTagSession(path=path_rtdc,
-                                                    user=user,
-                                                    linked_features=[])
-            except session.DCTagSessionWrongUserError as e:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    "Cannot load session",
-                    "You are trying to open a session from another user. This "
-                    + "is not supported yet. These are the details:<br><br>"
-                    + e.args[-1]
-                )
+            user = self.settings.value("user/name", None)
+            assert user
+            # check whether we have a dctag-history log and if not,
+            # ask the user whether to create a copy of the file.
+            if session.is_dctag_session(path_rtdc):
+                cont = True
             else:
-                # Go to session tab and update info
-                self.tabWidget.setCurrentIndex(0)
-                self.on_tab_changed()
+                reply = QtWidgets.QMessageBox.question(
+                    self,
+                    "Claim this file?",
+                    f"The file '{path_rtdc}' is not (yet) a DCTag session. "
+                    + "Would you like to claim this file? If you select "
+                    + "'Yes', this file will be tied to your username/alias. "
+                    + "This cannot be undone. You may alternatively select "
+                    + "'No' and open a copy of that file instead."
+                )
+                cont = reply == QtWidgets.QMessageBox.Yes
+            if cont:
+                try:
+                    self.session = session.DCTagSession(path=path_rtdc,
+                                                        user=user,
+                                                        linked_features=[])
+                except session.DCTagSessionWrongUserError as e:
+                    QtWidgets.QMessageBox.warning(
+                        self,
+                        "Cannot load session",
+                        "You are trying to open a session from another user. "
+                        + "This is not supported yet. These are the details: "
+                        + "<br><br>"
+                        + e.args[-1]
+                    )
+                else:
+                    # Go to session tab and update info
+                    self.tabWidget.setCurrentIndex(0)
+                    self.on_tab_changed()
 
     def set_title(self, task=None):
         if task is None:
@@ -227,9 +317,9 @@ def excepthook(etype, value, trace):
         call last)``.
     """
     vinfo = f"Unhandled exception in DCTag version {version}:\n"
-    traceback.print_exc()
     tmp = traceback.format_exception(etype, value, trace)
     exception = "".join([vinfo]+tmp)
+    print(exception)
 
     errorbox = QtWidgets.QMessageBox()
     errorbox.setIcon(QtWidgets.QMessageBox.Critical)

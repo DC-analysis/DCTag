@@ -2,6 +2,8 @@ import pkg_resources
 
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, uic
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QShortcut
 
 from .. import scores
 
@@ -29,6 +31,20 @@ class TabBinaryLabel(QtWidgets.QWidget):
         self.pushButton_prev.clicked.connect(self.on_event_button)
         self.pushButton_yes.clicked.connect(self.on_event_button)
         self.pushButton_no.clicked.connect(self.on_event_button)
+
+        # keyboard shortcuts
+        self.shortcuts = []
+        for button, shortcuts in [
+            [self.pushButton_yes, ["Up", "J", "Y"]],
+            [self.pushButton_no, ["Down", "F", "N"]],
+            [self.pushButton_next, ["Right"]],
+            [self.pushButton_prev, ["Left"]],
+        ]:
+            for seq in shortcuts:
+                sc = QShortcut(QKeySequence(seq), self)
+                sc.activated.connect(button.click)
+                button.setToolTip(f"Shortcuts: {', '.join(shortcuts)}")
+                self.shortcuts.append(sc)  # keep a reference
 
     @property
     def feature(self):
