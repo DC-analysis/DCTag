@@ -25,28 +25,6 @@ def test_is_dctag_session():
     assert session.is_dctag_session(path)
 
 
-def test_session_locked_error():
-    path = get_clean_data_path()
-    lock_path = path.with_suffix(".dctag")
-    lock_path.touch()
-    # make sure the session cannot be opened if it is locked
-    with pytest.raises(session.DCTagSessionLockedError, match=f"{path}"):
-        with session.DCTagSession(path, "Peter"):
-            pass
-    # make sure the lock file is not removed by context manager
-    assert lock_path.exists()
-
-
-def test_session_user_error():
-    path = get_clean_data_path()
-    with session.DCTagSession(path, "Peter"):
-        pass
-
-    with pytest.raises(session.DCTagSessionWrongUserError, match="Peter"):
-        with session.DCTagSession(path, "Hans"):
-            pass
-
-
 def test_flush_with_missing_file_error():
     path = get_clean_data_path()
     # error should be raised on flush and on __exit__
@@ -139,15 +117,6 @@ def test_get_score_linked():
         assert np.isnan(dts.get_score("ml_score_000", 5))
 
 
-def test_log_user():
-    """At the beginning, onle the user should be written"""
-    path = get_clean_data_path()
-    with session.DCTagSession(path, "Peter"):
-        pass
-    with dclab.new_dataset(path) as ds:
-        assert "".join(ds.logs["dctag-history"]).strip() == "user: Peter"
-
-
 def test_log_basic():
     path = get_clean_data_path()
     with session.DCTagSession(path, "Peter") as dts:
@@ -198,13 +167,13 @@ def test_log_linked_features():
             assert exp in line
 
 
-def test_set_score_wrong_feature_error():
+def test_log_user():
+    """At the beginning, onle the user should be written"""
     path = get_clean_data_path()
-    with session.DCTagSession(path, "Peter") as dts:
-        with pytest.raises(ValueError, match="Expected 'ml_score_xxx' featu"):
-            dts.set_score("volume", 0, True)
-        with pytest.raises(ValueError, match="Expected 'ml_score_xxx' featu"):
-            dts.set_score("ml_flore_abc", 0, True)
+    with session.DCTagSession(path, "Peter"):
+        pass
+    with dclab.new_dataset(path) as ds:
+        assert "".join(ds.logs["dctag-history"]).strip() == "user: Peter"
 
 
 def test_set_score_lists_and_history():
@@ -308,12 +277,64 @@ def test_set_score_with_linked_features():
         assert np.isnan(ds["ml_score_ot2"][4])
 
 
+def test_set_score_wrong_feature_error():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        with pytest.raises(ValueError, match="Expected 'ml_score_xxx' featu"):
+            dts.set_score("volume", 0, True)
+        with pytest.raises(ValueError, match="Expected 'ml_score_xxx' featu"):
+            dts.set_score("ml_flore_abc", 0, True)
+
+
 def test_session_bool():
     path = get_clean_data_path()
     dts = session.DCTagSession(path, "Peter")
     assert dts
     dts.close()
     assert not dts
+
+
+def test_session_error_closed_flush():
+    path = get_clean_data_path()
+    dts = session.DCTagSession(path, "Peter")
+    dts.set_score("ml_score_001", 10, False)
+    # Force this scenario which otherwise could only be triggered maybe
+    # via threading.
+    dts._closed = True
+    with pytest.raises(session.DCTagSessionClosedError,
+                       match="flush the session"):
+        dts.flush()
+
+
+def test_session_error_closed_set_score():
+    path = get_clean_data_path()
+    dts = session.DCTagSession(path, "Peter")
+    dts.close()
+    with pytest.raises(session.DCTagSessionClosedError,
+                       match="set the score"):
+        dts.set_score("ml_score_001", 0, True)
+
+
+def test_session_error_locked():
+    path = get_clean_data_path()
+    lock_path = path.with_suffix(".dctag")
+    lock_path.touch()
+    # make sure the session cannot be opened if it is locked
+    with pytest.raises(session.DCTagSessionLockedError, match=f"{path}"):
+        with session.DCTagSession(path, "Peter"):
+            pass
+    # make sure the lock file is not removed by context manager
+    assert lock_path.exists()
+
+
+def test_session_error_wronguser():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter"):
+        pass
+
+    with pytest.raises(session.DCTagSessionWrongUserError, match="Peter"):
+        with session.DCTagSession(path, "Hans"):
+            pass
 
 
 def test_session_multiple_with_linked_features():
@@ -339,27 +360,6 @@ def test_session_multiple_with_linked_features():
         # from linked session:
         assert ds["ml_score_456"][2] == 0
         assert ds["ml_score_456"][3] == 1
-
-
-def test_session_error_closed_flush():
-    path = get_clean_data_path()
-    dts = session.DCTagSession(path, "Peter")
-    dts.set_score("ml_score_001", 10, False)
-    # Force this scenario which otherwise could only be triggered maybe
-    # via threading.
-    dts._closed = True
-    with pytest.raises(session.DCTagSessionClosedError,
-                       match="flush the session"):
-        dts.flush()
-
-
-def test_session_error_closed_set_score():
-    path = get_clean_data_path()
-    dts = session.DCTagSession(path, "Peter")
-    dts.close()
-    with pytest.raises(session.DCTagSessionClosedError,
-                       match="set the score"):
-        dts.set_score("ml_score_001", 0, True)
 
 
 def test_session_warning_closed_get_score():
