@@ -72,7 +72,7 @@ class LabelButtonWidget(QtWidgets.QWidget):
         self.on_combobox(shortcut)  # initial shortcut
         self.verticalLayout.addWidget(self.comboBox)
         # Initialize button label
-        self.set_labeled(False)
+        self.set_score(np.nan)
 
     @QtCore.pyqtSlot()
     def on_button(self):
@@ -85,12 +85,15 @@ class LabelButtonWidget(QtWidgets.QWidget):
         seq = QKeySequence(shortcut)
         self.pushButton.setShortcut(seq)
 
-    def set_labeled(self, b=False):
+    def set_score(self, score=np.nan):
         """Add square brackets in the button"""
         label = self.feature[-3:].upper()
-        if b:
+        if score is True:
             label = f"[{label}]"
+        elif score is False:
+            label = f"!{label}"
         self.pushButton.setText(label)
+        # Somehow necessary to re-enable the shortcut
         self.on_combobox(None)
 
 
@@ -191,9 +194,9 @@ class TabMultiClassLabel(QtWidgets.QWidget):
 
         # indicate current score label
         if self.features:
-            curfeats = self.session.get_scores_true(index)
             for button in self.label_buttons:
-                button.set_labeled(button.feature in curfeats)
+                score = self.session.get_score(button.feature, index)
+                button.set_score(score)
 
         # update progress bar
         if self.features:
