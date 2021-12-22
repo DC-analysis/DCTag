@@ -1,65 +1,90 @@
 {
   "ml_score_r1f": {
-    "label": "RBC singlet focused"
+    "label": "RBC singlet focused",
+    "shortcut": "R"
     },
   "ml_score_r1u": {
-    "label": "RBC singlet unfocused"
+    "label": "RBC singlet unfocused",
+    "shortcut": "Ctrl+R"
     },
   "ml_score_r20": {
-    "label": "RBC doublet"
+    "label": "RBC doublet",
+    "shortcut": "Shift+2"
     },
   "ml_score_r30": {
-    "label": "RBC triplet"
+    "label": "RBC triplet",
+    "shortcut": "Shift+3"
     },
   "ml_score_rn0": {
-    "label": "RBC multiple"
+    "label": "RBC multiple",
+    "shortcut": "Shift+R"
     },
   "ml_score_l10": {
-    "label": "WBC singlet Lymphocytes"
+    "label": "WBC singlet Lymphocytes",
+    "shortcut": "L"
+    },
+  "ml_score_w10": {
+    "label": "WBC singlet",
+    "shortcut": "W"
     },
   "ml_score_g10": {
-    "label": "WBC singlet Granulomonocyte"
+    "label": "WBC singlet Granulomonocyte",
+    "shortcut": "G"
     },
   "ml_score_g1n": {
-    "label": "WBC singlet Neutrophil"
+    "label": "WBC singlet Neutrophil",
+    "shortcut": "N"
     },
   "ml_score_g1e": {
-    "label": "WBC singlet Eosinophil"
+    "label": "WBC singlet Eosinophil",
+    "shortcut": "E"
     },
   "ml_score_g1b": {
-    "label": "WBC singlet Basophil"
+    "label": "WBC singlet Basophil",
+    "shortcut": "B"
     },
   "ml_score_g1m": {
-    "label": "WBC singlet Monocytes"
+    "label": "WBC singlet Monocytes",
+    "shortcut": "M"
     },
   "ml_score_wn0": {
-    "label": "WBC multiple"
+    "label": "WBC multiple",
+    "shortcut": "Shift+W"
     },
   "ml_score_t1f": {
-    "label": "Thrombocyte singlet focused"
+    "label": "Thrombocyte singlet focused",
+    "shortcut": "T"
     },
   "ml_score_t1u": {
-    "label": "Thrombocyte singlet unfocused"
+    "label": "Thrombocyte singlet unfocused",
+    "shortcut": "Ctrl+T"
     },
   "ml_score_tn0": {
-    "label": "Thrombocyte multiple"
+    "label": "Thrombocyte multiple",
+    "shortcut": "Shift+T"
     },
   "ml_score_m20": {
-    "label": "Mixed cell doublet"
+    "label": "Mixed cell doublet",
+    "shortcut": "Alt+2"
     },
   "ml_score_m30": {
-    "label": "Mixed cell triplet"
+    "label": "Mixed cell triplet",
+    "shortcut": "Alt+3"
     },
   "ml_score_mn0": {
-    "label": "Mixed cell multiple"
+    "label": "Mixed cell multiple",
+    "shortcut": "Alt+0"
     },
   "ml_score_ds0": {
-    "label": "Small debris"
+    "label": "Small debris",
+    "shortcut": "D"
     },
   "ml_score_dl0": {
-    "label": "Large debris"
+    "label": "Large debris",
+    "shortcut": "Shift+D"
     },
   "ml_score_buk": {
-    "label": "Other/unknown"
+    "label": "Other/unknown",
+    "shortcut": "U"
     }
 }

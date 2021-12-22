@@ -33,6 +33,11 @@
         <string>Binary Classification</string>
        </attribute>
       </widget>
+      <widget class="TabMultiClassLabel" name="tab_multiple">
+       <attribute name="title">
+        <string>Multi-Class Labeling</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -129,6 +134,12 @@
    <class>TabSessionInfo</class>
    <extends>QWidget</extends>
    <header>dctag.gui.tab_session</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TabMultiClassLabel</class>
+   <extends>QWidget</extends>
+   <header>dctag.gui.tab_multiple</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

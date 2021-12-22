@@ -7,6 +7,7 @@ class SimplePlotItem(pg.PlotItem):
     Modifications include:
     - top and right axes
     """
+
     def __init__(self, parent=None, *args, **kwargs):
         super(SimplePlotItem, self).__init__(parent, *args, **kwargs)
         # show top and right axes, but not ticklabels
@@ -35,6 +36,7 @@ class SimplePlotItem(pg.PlotItem):
 class ScatterPlotWidget(pg.PlotWidget):
     """Custom class for data visualization in DCTag
     """
+
     def __init__(self, parent=None, background='w', **kargs):
         plot_item = SimplePlotItem(**kargs)
         super(ScatterPlotWidget, self).__init__(parent,

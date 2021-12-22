@@ -287,6 +287,66 @@ def test_set_score_wrong_feature_error():
             dts.set_score("ml_flore_abc", 0, True)
 
 
+def test_session_autocomplete_linked_features():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_001", 0, True)
+        dts.set_score("ml_score_ot1", 0, False)
+        dts.set_score("ml_score_ot1", 1, True)
+        dts.set_score("ml_score_ot2", 1, False)
+        dts.set_score("ml_score_002", 1, True)
+
+        # sanity checks
+        assert dts.get_score("ml_score_001", 0) is True
+        assert dts.get_score("ml_score_ot1", 0) is False
+        assert dts.get_score("ml_score_ot1", 1) is True
+        assert dts.get_score("ml_score_ot2", 1) is False
+        assert dts.get_score("ml_score_002", 1) is True
+
+        # to be tested after linking and autocompletion
+        assert np.isnan(dts.get_score("ml_score_001", 1))
+        assert np.isnan(dts.get_score("ml_score_002", 0))
+        # perform linking and autocompletion
+        dts.linked_features = ["ml_score_001", "ml_score_002"]
+        dts.autocomplete_linked_features()
+
+        # sanity checks
+        assert dts.get_score("ml_score_001", 0) is True
+        assert dts.get_score("ml_score_ot1", 0) is False
+        assert dts.get_score("ml_score_ot1", 1) is True
+        assert dts.get_score("ml_score_ot2", 1) is False
+        assert dts.get_score("ml_score_002", 1) is True
+        # more sanity checks
+        assert np.isnan(dts.get_score("ml_score_ot2", 0))
+        assert np.isnan(dts.get_score("ml_score_ot2", 3))
+        # new tests
+        assert dts.get_score("ml_score_001", 1) is False
+        assert dts.get_score("ml_score_002", 0) is False
+
+    with dclab.new_dataset(path) as ds:
+        assert ds["ml_score_001"][0] == 1
+        assert ds["ml_score_002"][0] == 0
+        assert ds["ml_score_ot1"][0] == 0
+        assert np.isnan(ds["ml_score_ot2"][0])
+
+        assert ds["ml_score_001"][1] == 0
+        assert ds["ml_score_002"][1] == 1
+        assert ds["ml_score_ot1"][1] == 1
+        assert ds["ml_score_ot2"][1] == 0
+
+
+def test_session_autocomplete_linked_features_error():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_001", 0, True)
+        dts.set_score("ml_score_002", 0, True)
+        dts.linked_features = ["ml_score_001", "ml_score_002"]
+        with pytest.raises(
+                ValueError,
+                match="always only one of those scores is labeled as True"):
+            dts.autocomplete_linked_features()
+
+
 def test_session_backup_scores():
     path = get_clean_data_path()
     linked = ["ml_score_001", "ml_score_002"]
@@ -426,6 +486,37 @@ def test_session_error_wronguser():
     with pytest.raises(session.DCTagSessionWrongUserError, match="Peter"):
         with session.DCTagSession(path, "Hans"):
             pass
+
+
+def test_session_get_scores_true_basic():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_abc", 0, True)
+        dts.set_score("ml_score_abc", 2, True)
+        dts.set_score("ml_score_abc", 3, True)
+        dts.set_score("ml_score_456", 3, True)
+
+        assert dts.get_scores_true(0) == ["ml_score_abc"]
+        assert dts.get_scores_true(1) == []
+        assert dts.get_scores_true(2) == ["ml_score_abc"]
+        assert dts.get_scores_true(3) == ["ml_score_456", "ml_score_abc"]
+        assert dts.get_scores_true(4) == []
+
+
+def test_session_get_scores_true_linked():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_abc", 0, True)
+        dts.set_score("ml_score_abc", 1, True)
+        dts.set_score("ml_score_abc", 0, False)
+        dts.linked_features = ["ml_score_abc", "ml_score_456"]
+        dts.set_score("ml_score_abc", 2, True)
+        dts.set_score("ml_score_456", 3, True)
+
+        assert dts.get_scores_true(0) == []
+        assert dts.get_scores_true(1) == ["ml_score_abc"]
+        assert dts.get_scores_true(2) == ["ml_score_abc"]
+        assert dts.get_scores_true(3) == ["ml_score_456"]
 
 
 def test_session_multiple_with_linked_features():

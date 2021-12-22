@@ -6,6 +6,7 @@ import dclab
 
 class TabSessionInfo(QtWidgets.QWidget):
     """Tab that displays .rtdc file DCTagSession information"""
+
     def __init__(self, *args, **kwargs):
         super(TabSessionInfo, self).__init__(*args, **kwargs)
 

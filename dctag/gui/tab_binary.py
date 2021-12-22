@@ -10,6 +10,7 @@ from .. import scores
 
 class TabBinaryLabel(QtWidgets.QWidget):
     """Tab for doing binary classification"""
+
     def __init__(self, *args, **kwargs):
         super(TabBinaryLabel, self).__init__(*args, **kwargs)
 
@@ -174,4 +175,6 @@ class TabBinaryLabel(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def on_start(self):
+        self.session.linked_features = []
         self.lock_in()
+        self.goto_event(0)
