@@ -3,6 +3,26 @@ DCTag
 **DCTag** is a graphical toolkit for manually annotating RT-DC events
 for machine-learning purposes.
 
+
+Installing DCTag
+----------------
+This section is only for users. If you are a developer and want to contribute to DCTag, you have
+to clone the repository and install in editable mode (see below).
+
+Depending on how you set up GitLab, one of those commands will work::
+
+    pip install dctag@git+ssh://git@gitlab.gwdg.de/blood_data_analysis/dctag.git@X.Y.Z
+    pip install dctag@git+https://gitlab.gwdg.de/blood_data_analysis/dctag.git@X.Y.Z
+
+where ``X.Y.Z`` is the version of DCTag you are interested in. E.g. to install DCTag 0.3.0 via SSH
+(works if you have two-factor authentication enabled), run::
+
+    pip install dctag@git+ssh://git@gitlab.gwdg.de/blood_data_analysis/dctag.git@0.3.0
+
+Windows users please note that this might only work with git bash.
+
+For more information and some more examples, please see `issue #9 <https://gitlab.gwdg.de/blood_data_analysis/dctag/-/issues/9>`_.
+
 Running DCTag
 -------------
 If installed properly, a simple ``dctag`` should work. Otherwise (make sure
@@ -15,7 +35,8 @@ For Developers
 --------------
 Here is how we manage contributions:
 
-1. Fork this repository.
+1. Fork this repository, create your virtual environment and install in editable mode via
+   ``pip install -e .`` in the repository root.
 2. Create an issue or open the issue that you want to address.
 3. Assign yourself to that issue so nobody else is working on it.
 4. Verify that nobody else is currently working an an issue that might
