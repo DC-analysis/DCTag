@@ -20,3 +20,11 @@ def get_feature_label(feature):
         return score_dict[feature]["label"]
     else:
         return dclab.dfn.get_feature_label(feature)
+
+
+def get_feature_shortcut(feature):
+    score_dict = get_dctag_score_dict(name="blood")
+    if feature in score_dict:
+        return score_dict[feature]["shortcut"]
+    else:
+        return "A"

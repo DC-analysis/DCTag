@@ -19,3 +19,15 @@ def test_get_dctag_score_dict_error_wrong_name():
 ])
 def test_get_feature_label(feat, label):
     assert scores.get_feature_label(feat) == label
+
+
+def test_unique_score_labels():
+    blood = scores.get_dctag_score_dict(name="blood")
+    labels = [blood[ft]["label"] for ft in blood]
+    assert len(labels) == len(set(labels))
+
+
+def test_unique_score_shortcuts():
+    blood = scores.get_dctag_score_dict(name="blood")
+    shortcuts = [blood[ft]["shortcut"] for ft in blood]
+    assert len(shortcuts) == len(set(shortcuts))

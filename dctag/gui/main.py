@@ -52,7 +52,7 @@ class DCTag(QtWidgets.QMainWindow):
                 + "Please choose wisely.<br>"
                 + "You should not change it in the future.",
                 text=getpass.getuser()
-                )
+            )
             if ok and username.strip():
                 username = username.strip()
             else:

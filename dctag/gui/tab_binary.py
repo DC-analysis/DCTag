@@ -10,6 +10,7 @@ from .. import scores
 
 class TabBinaryLabel(QtWidgets.QWidget):
     """Tab for doing binary classification"""
+
     def __init__(self, *args, **kwargs):
         super(TabBinaryLabel, self).__init__(*args, **kwargs)
 

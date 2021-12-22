@@ -26,6 +26,7 @@ SCATTER_FEAT = [
 
 class WidgetVisualize(QtWidgets.QWidget):
     """Widget for visualizing data"""
+
     def __init__(self, *args, **kwargs):
         super(WidgetVisualize, self).__init__(*args, **kwargs)
 

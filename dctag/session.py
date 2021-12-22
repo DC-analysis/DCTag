@@ -284,6 +284,25 @@ class DCTagSession:
                     value = bool(round(value))
             return value
 
+    def get_scores_true(self, index):
+        """Return the feature names that are labeld True for one event
+
+        Parameters
+        ----------
+        index: int
+            Event index (starts at 0)
+
+        Returns
+        -------
+        features: list of str
+            Feature names
+        """
+        true_features = []
+        for feature in self.scores_cache:
+            if self.get_score(feature, index) is True:
+                true_features.append(feature)
+        return true_features
+
     def set_score(self, feature, index, value):
         """Set the feature score of an event in the current dataset
 
