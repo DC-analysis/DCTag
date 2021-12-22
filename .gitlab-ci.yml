@@ -31,6 +31,7 @@ before_script:
 
 test:
   script:
+    - apt install libgl1-mesa-glx
     - pip install -e .
     - pip install flake8 pytest pytest-qt
     - flake8 dctag
