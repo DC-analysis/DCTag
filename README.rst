@@ -89,21 +89,24 @@ To run all tests, install the requirements and run pytest::
 
 Distribution to Users
 ---------------------
-1. Create a new tag::
+1. Create a new tag (you can also do this via the web interface)::
 
-    git tag -a "0.1.0"
-    git push --tags
+       git tag -a "0.1.0"
+       git push --tags
 
-2. Create a distribution package ``dctag_XYZ.tar.gz`` with::
+   At this point, users will be able to install with the description
+   provided a the top of this readme.
 
-    python setup.py sdist
+2. Create a distribution package ``dctag_XYZ.whl`` with::
 
-3. Give the ``.tar.gz`` file to users and tell them to pip-install it with::
+       python setup.py bdist_wheel
 
-    pip install dctag_XYZ.tar.gz
+   There is also CI/CD which creates ``.whl`` files automatically. Go to
+   https://gitlab.gwdg.de/blood_data_analysis/dctag/-/pipelines, and in the list click on
+   the three-vertical-dots-button and select download ``run:archive``. The ``.whl`` is
+   in the zip archive you downloaded. However, these artifacts are deleted after some time.
 
-We may want to have some kind of CI that builds an installer at some
-point. For that, we can reuse the scripts in:
-https://github.com/ZELLMECHANIK-DRESDEN/DCKit/tree/master/build-recipes
 
+3. Give the ``.whl`` file to users and tell them to pip-install it with::
 
+       pip install dctag_XYZ.whl
