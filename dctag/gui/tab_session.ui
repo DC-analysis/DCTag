@@ -88,6 +88,9 @@
           <property name="readOnly">
            <bool>true</bool>
           </property>
+          <property name="plainText">
+           <string>No session.</string>
+          </property>
          </widget>
         </item>
        </layout>

@@ -16,7 +16,7 @@ class TabSessionInfo(QtWidgets.QWidget):
 
     def update_session(self, session):
         """Update this widget with the session info"""
-        if session is None:
+        if not session:
             user = ""
             logs = "No session."
         else:
