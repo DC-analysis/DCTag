@@ -32,7 +32,9 @@ before_script:
 test:
   script:
     - apt update
-    - apt install -y libgl1-mesa-glx
+    - apt install -y libgl1-mesa-glx libsm6 libxext6
+    - apt install -y xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0
+    - /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
     - pip install -e .
     - pip install flake8 pytest pytest-qt
     - flake8 dctag
