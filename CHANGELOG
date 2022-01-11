@@ -1,4 +1,5 @@
 0.4.0
+ - feat: add trash icon in GUI for resetting a score (#26)
  - feat: implement `DCTagSession.reset_score` for resetting a
    score to np.nan (#26)
  - fix: repetitive tool tips in binary classification (#27)

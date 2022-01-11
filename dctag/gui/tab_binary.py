@@ -34,6 +34,11 @@ class TabBinaryLabel(QtWidgets.QWidget):
         self.pushButton_no.clicked.connect(self.on_event_button)
         self.pushButton_fast_next.clicked.connect(self.on_event_button)
         self.pushButton_fast_prev.clicked.connect(self.on_event_button)
+        self.toolButton_reset.clicked.connect(self.on_event_button)
+
+        self.toolButton_reset.setIcon(self.style().standardIcon(
+            QtWidgets.QStyle.SP_TrashIcon))
+        self.toolButton_reset.repaint()
 
         # keyboard shortcuts
         self.shortcuts = []
@@ -173,6 +178,9 @@ class TabBinaryLabel(QtWidgets.QWidget):
             else:
                 new_index = self.session.event_count - 1
             self.goto_event(new_index)
+        elif btn is self.toolButton_reset:
+            self.session.reset_score(self.feature, self.event_index)
+            self.goto_event(self.event_index + 1)
 
     @QtCore.pyqtSlot()
     def on_start(self):

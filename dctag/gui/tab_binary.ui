@@ -193,15 +193,29 @@
            </item>
           </layout>
          </item>
-         <item alignment="Qt::AlignTop">
-          <widget class="QPushButton" name="pushButton_fast_next">
-           <property name="toolTip">
-            <string>Skip to next unlabeled event</string>
-           </property>
-           <property name="text">
-            <string>&gt;&gt;</string>
-           </property>
-          </widget>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item alignment="Qt::AlignTop">
+            <widget class="QPushButton" name="pushButton_fast_next">
+             <property name="toolTip">
+              <string>Skip to next unlabeled event</string>
+             </property>
+             <property name="text">
+              <string>&gt;&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignRight|Qt::AlignBottom">
+            <widget class="QToolButton" name="toolButton_reset">
+             <property name="toolTip">
+              <string>Reset label for current event</string>
+             </property>
+             <property name="text">
+              <string>T</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>

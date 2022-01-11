@@ -121,6 +121,10 @@ class TabMultiClassLabel(QtWidgets.QWidget):
         self.pushButton_prev.clicked.connect(self.on_event_button)
         self.pushButton_fast_next.clicked.connect(self.on_event_button)
         self.pushButton_fast_prev.clicked.connect(self.on_event_button)
+        self.toolButton_reset.clicked.connect(self.on_event_button)
+
+        self.toolButton_reset.setIcon(self.style().standardIcon(
+            QtWidgets.QStyle.SP_TrashIcon))
 
         # keyboard shortcuts
         self.shortcuts = []
@@ -262,6 +266,10 @@ class TabMultiClassLabel(QtWidgets.QWidget):
             else:
                 new_index = self.session.event_count - 1
             self.goto_event(new_index)
+        elif btn is self.toolButton_reset:
+            # linked features will also be reset
+            self.session.reset_score(self.features[0], self.event_index)
+            self.goto_event(self.event_index + 1)
 
     @QtCore.pyqtSlot(str)
     def on_event_button_feature(self, feature):
