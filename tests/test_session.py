@@ -177,6 +177,64 @@ def test_log_user():
         assert "".join(ds.logs["dctag-history"]).strip() == "user: Peter"
 
 
+def test_reset_score_lists_and_history():
+    path = get_clean_data_path()
+    with session.DCTagSession(path, "Peter") as dts:
+        dts.set_score("ml_score_abc", 0, True)
+        dts.set_score("ml_score_abc", 1, False)
+        dts.set_score("ml_score_abc", 2, True)
+
+        dts.reset_score("ml_score_abc", 0)
+        dts.reset_score("ml_score_abc", 1)
+
+        assert dts.scores[0] == ("ml_score_abc", 0, True)
+        assert dts.scores[1] == ("ml_score_abc", 1, False)
+        assert dts.scores[2] == ("ml_score_abc", 2, True)
+        assert dts.scores[3] == ("ml_score_abc", 0, np.nan)
+        assert dts.scores[4] == ("ml_score_abc", 1, np.nan)
+
+    # now check the data file to see that this worked
+    with dclab.new_dataset(path) as ds:
+        assert np.isnan(ds["ml_score_abc"][0])
+        assert np.isnan(ds["ml_score_abc"][1])
+        assert ds["ml_score_abc"][2] == 1
+        assert np.all(np.isnan(ds["ml_score_abc"][3:]))
+
+        # now check that the logs were written
+        assert "dctag-history" in ds.logs
+        dctaglog = "\n".join(ds.logs["dctag-history"])
+        assert "ml_score_abc count True: 2" in dctaglog
+        assert "ml_score_abc count False: 1" in dctaglog
+        assert "ml_score_abc count reset: 2" in dctaglog
+        assert dctaglog.startswith("user: Peter")
+
+
+def test_reset_score_with_linked_features():
+    path = get_clean_data_path()
+    linked = ["ml_score_001", "ml_score_002"]
+    with session.DCTagSession(path, "Peter", linked_features=linked) as dts:
+        dts.set_score("ml_score_001", 0, True)
+        dts.set_score("ml_score_ot1", 0, False)
+
+        dts.set_score("ml_score_ot1", 1, True)
+        dts.set_score("ml_score_ot2", 1, False)
+        dts.set_score("ml_score_002", 1, True)
+
+        dts.reset_score("ml_score_001", 0)
+        dts.reset_score("ml_score_ot1", 1)
+
+    with dclab.new_dataset(path) as ds:
+        assert np.isnan(ds["ml_score_001"][0])
+        assert np.isnan(ds["ml_score_002"][0])
+        assert ds["ml_score_ot1"][0] == 0
+        assert np.isnan(ds["ml_score_ot2"][0])
+
+        assert ds["ml_score_001"][1] == 0
+        assert ds["ml_score_002"][1] == 1
+        assert np.isnan(ds["ml_score_ot1"][1])
+        assert ds["ml_score_ot2"][1] == 0
+
+
 def test_set_score_lists_and_history():
     path = get_clean_data_path()
     with session.DCTagSession(path, "Peter") as dts:

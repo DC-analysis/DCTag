@@ -174,7 +174,7 @@ class DCTagSession:
     @linked_features.setter
     def linked_features(self, linked_features):
         # Acquire a score_lock, because labeling might go on
-        # in another thread and we want the correct history.
+        # in another thread, and we want the correct history.
         with self.score_lock:
             linked_features = linked_features or []
             if self._linked_features == linked_features:
@@ -330,6 +330,42 @@ class DCTagSession:
             if self.get_score(feature, index) is True:
                 true_features.append(feature)
         return sorted(true_features)
+
+    def reset_score(self, feature, index, reset_linked=True):
+        """Set the score at `index` to `np.nan`
+
+        Parameters
+        ----------
+        feature: str
+            Name of the machine-learning feature (e.g. "ml_score_buk")
+        index: int
+            Event index (starts at 0)
+        reset_linked: bool
+            Also reset all linked features if `feature` in
+            `self.linked_features`.
+        """
+        if reset_linked and feature in self.linked_features:
+            # Recurse one level and reset all features
+            for feat in self.linked_features:
+                self.reset_score(feat, index, reset_linked=False)
+        else:
+            # Do the actual resetting
+            with self.score_lock:
+                self.assert_session_open(
+                    f"reset the score {feature} at {index}", strict=True)
+                # scores list
+                self.scores.append((feature, index, np.nan))
+
+                # history list
+                # (Note that this count value may be larger than the actual
+                # updated number of events of the ml_score, because `feat_list`
+                # may have multiple entries with the same index. This is OK).
+                key = f"{feature} count reset"
+                self.history.setdefault(key, 0)
+                self.history[key] += 1
+
+                self.require_dict_score_dataset(self.scores_cache, feature)
+                self.scores_cache[feature][index] = np.nan
 
     def set_score(self, feature, index, value):
         """Set the feature score of an event in the current dataset
