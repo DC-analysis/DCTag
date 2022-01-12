@@ -21,6 +21,10 @@ where ``X.Y.Z`` is the version of DCTag you are interested in. E.g. to install D
 
 Windows users please note that this might only work with git bash.
 
+To **upgrade** to a new version, use the ``--upgrade`` argument::
+
+    pip install --upgrade dctag@git+ssh://git@gitlab.gwdg.de/blood_data_analysis/dctag.git@0.4.0
+
 For more information and some more examples, please see `issue #9 <https://gitlab.gwdg.de/blood_data_analysis/dctag/-/issues/9>`_.
 
 Running DCTag
