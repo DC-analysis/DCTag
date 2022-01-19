@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtWidgets
 import dctag
 from dctag.gui.main import DCTag
 from dctag import session
-from helper import get_clean_data_path
+from .helper import get_clean_data_path
 
 
 data_dir = pathlib.Path(__file__).parent / "data"
