@@ -22,7 +22,13 @@ class SimplePlotItem(pg.PlotItem):
                         autoExpandTextSpace=False,
                         showValues=False,
                         )
-        self.showGrid(x=True, y=True, alpha=.1)
+        # This screwed up zooming with right-click:
+        # self.showGrid(x=True, y=True, alpha=.1)
+        # Use the new GridItem instead:
+        grid = pg.GridItem()
+        grid.setTextPen("#FFFF")  # hide grid tick labels
+        self.addItem(grid)
+
         # visualization
         self.hideButtons()
 

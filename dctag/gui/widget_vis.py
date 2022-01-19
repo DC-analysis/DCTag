@@ -14,6 +14,7 @@ LIMITS_FEAT = {
     "area_um": [10, 130],
     "bright_avg": [70, 140],
     "bright_sd": [5, 35],
+    "time": None,
 }
 
 #: list with scatter plot axis features (there are three)
@@ -21,6 +22,7 @@ SCATTER_FEAT = [
     ["area_um", "deform"],
     ["area_um", "bright_avg"],
     ["bright_sd", "bright_avg"],
+    ["time", "bright_avg"],
 ]
 
 
@@ -101,7 +103,8 @@ class WidgetVisualize(QtWidgets.QWidget):
             self.update_image_cropped(image_cropped)
             # Plot event in the scatter plots
             for plot, [featx, featy] in zip(
-                    [self.scatter_1, self.scatter_2, self.scatter_3],
+                    [self.scatter_1, self.scatter_2, self.scatter_3,
+                     self.scatter_4],
                     SCATTER_FEAT):
                 plot.set_event(data[featx], data[featy])
 
@@ -131,12 +134,15 @@ class WidgetVisualize(QtWidgets.QWidget):
 
     def update_scatter_plots(self):
         for plot, [featx, featy] in zip(
-                [self.scatter_1, self.scatter_2, self.scatter_3],
+                [self.scatter_1, self.scatter_2, self.scatter_3,
+                 self.scatter_4],
                 SCATTER_FEAT):
             plot.set_scatter(self.get_feature_data(featx),
                              self.get_feature_data(featy))
-            plot.setXRange(*LIMITS_FEAT[featx])
-            plot.setYRange(*LIMITS_FEAT[featy])
+            if LIMITS_FEAT[featx] is not None:
+                plot.setXRange(*LIMITS_FEAT[featx])
+            if LIMITS_FEAT[featy] is not None:
+                plot.setYRange(*LIMITS_FEAT[featy])
             plot.setLabel('bottom', dclab.dfn.get_feature_label(featx))
             plot.setLabel('left', dclab.dfn.get_feature_label(featy))
 

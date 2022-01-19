@@ -176,6 +176,9 @@
       <item>
        <widget class="ScatterPlotWidget" name="scatter_3" native="true"/>
       </item>
+      <item>
+       <widget class="ScatterPlotWidget" name="scatter_4" native="true"/>
+      </item>
      </layout>
     </widget>
    </item>
