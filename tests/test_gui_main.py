@@ -1,5 +1,6 @@
 import io
 import pathlib
+import time
 from unittest import mock
 
 import h5py
@@ -10,7 +11,7 @@ from PyQt5 import QtCore, QtWidgets
 import dctag
 from dctag.gui.main import DCTag
 from dctag import session
-from helper import get_clean_data_path
+from .helper import get_clean_data_path
 
 
 data_dir = pathlib.Path(__file__).parent / "data"
@@ -18,11 +19,12 @@ data_dir = pathlib.Path(__file__).parent / "data"
 
 @pytest.fixture(autouse=True)
 def run_around_tests():
-    # Code that will run before your test, for example:
+    # Code that will run before your test
+    QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
     pass
     # A test function will be run at this point
     yield
-    # Code that will run after your test, for example:
+    # Code that will run after your test
     # restore dctag-tester for other tests
     QtCore.QCoreApplication.setOrganizationName("MPL")
     QtCore.QCoreApplication.setOrganizationDomain("mpl.mpg.de")
@@ -30,6 +32,7 @@ def run_around_tests():
     QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
     settings = QtCore.QSettings()
     settings.setValue("user/name", "dctag-tester")
+    QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
 
 
 @pytest.mark.parametrize("with_delete", [True, False])
@@ -37,6 +40,7 @@ def test_action_backup(with_delete, qtbot):
     # setup a nice session
     path = get_clean_data_path()
     mw = DCTag()
+    qtbot.addWidget(mw)
     QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
@@ -59,7 +63,7 @@ def test_action_backup(with_delete, qtbot):
                            return_value=QtWidgets.QMessageBox.Yes):
         with mock.patch.object(QtWidgets.QFileDialog, "getSaveFileName",
                                return_value=(str(export_path), None)):
-            with mock.patch.object(QtCore.QCoreApplication, "quit"):
+            with mock.patch.object(mw, "on_action_quit"):
                 mw.on_action_backup()
 
     export_path = export_path.with_suffix(".h5")
@@ -78,6 +82,10 @@ def test_action_backup(with_delete, qtbot):
 def test_basic(qtbot):
     """Run the program and exit"""
     mw = DCTag()
+    qtbot.addWidget(mw)
+    QtWidgets.QApplication.setActiveWindow(mw)
+    time.sleep(.5)
+    QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
     mw.close()
 
 
@@ -85,6 +93,7 @@ def test_clear_session(qtbot):
     """Clearing the session should not cause any trouble"""
     path = get_clean_data_path()
     mw = DCTag()
+    qtbot.addWidget(mw)
     QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):

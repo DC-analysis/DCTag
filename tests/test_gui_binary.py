@@ -5,14 +5,33 @@ import pytest
 
 from dctag.gui.main import DCTag
 from dctag import session
-from helper import get_clean_data_path
+from .helper import get_clean_data_path
 
 
 data_dir = pathlib.Path(__file__).parent / "data"
 
 
+@pytest.fixture(autouse=True)
+def run_around_tests():
+    # Code that will run before your test
+    QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
+    pass
+    # A test function will be run at this point
+    yield
+    # Code that will run after your test
+    # restore dctag-tester for other tests
+    QtCore.QCoreApplication.setOrganizationName("MPL")
+    QtCore.QCoreApplication.setOrganizationDomain("mpl.mpg.de")
+    QtCore.QCoreApplication.setApplicationName("dctag")
+    QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+    settings = QtCore.QSettings()
+    settings.setValue("user/name", "dctag-tester")
+    QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
+
+
 def test_empty_session(qtbot):
     mw = DCTag()
+    qtbot.addWidget(mw)
     QtWidgets.QApplication.setActiveWindow(mw)
     # select binary tab
     mw.tabWidget.setCurrentIndex(1)
@@ -32,6 +51,7 @@ def test_empty_session(qtbot):
 def test_goto_event_limits(event_index, expected, qtbot):
     path = get_clean_data_path()
     mw = DCTag()
+    qtbot.addWidget(mw)
     QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
@@ -58,6 +78,7 @@ def test_goto_event_button_labels(qtbot):
         dts.set_score("ml_score_r1f", 3, False)
 
     mw = DCTag()
+    qtbot.addWidget(mw)
     QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select binary tab
@@ -93,6 +114,7 @@ def test_event_push_buttons(qtbot):
         dts.set_score("ml_score_r1f", 3, False)
 
     mw = DCTag()
+    qtbot.addWidget(mw)
     QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select binary tab
@@ -160,6 +182,7 @@ def test_session_load(qtbot):
         assert dts.get_scores_true(4) == []
 
     mw = DCTag()
+    qtbot.addWidget(mw)
     QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select binary tab

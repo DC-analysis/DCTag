@@ -6,7 +6,7 @@ import numpy as np
 
 from dctag import session
 
-from helper import get_clean_data_path
+from .helper import get_clean_data_path
 
 
 def test_basic():
