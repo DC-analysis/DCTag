@@ -36,7 +36,7 @@ def run_around_tests():
 
 
 @pytest.mark.parametrize("with_delete", [True, False])
-def stest_action_backup(with_delete, qtbot):
+def test_action_backup(with_delete, qtbot):
     # setup a nice session
     path = get_clean_data_path()
     mw = DCTag()
@@ -63,7 +63,7 @@ def stest_action_backup(with_delete, qtbot):
                            return_value=QtWidgets.QMessageBox.Yes):
         with mock.patch.object(QtWidgets.QFileDialog, "getSaveFileName",
                                return_value=(str(export_path), None)):
-            with mock.patch.object(QtCore.QCoreApplication, "quit"):
+            with mock.patch.object(mw, "on_action_quit"):
                 mw.on_action_backup()
 
     export_path = export_path.with_suffix(".h5")

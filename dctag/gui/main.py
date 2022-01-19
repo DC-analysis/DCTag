@@ -164,7 +164,7 @@ class DCTag(QtWidgets.QMainWindow):
                 + "experience will be able to append them to the original "
                 + "file (if that still exists). Close DCTag now?")
             if reply2 == QtWidgets.QMessageBox.Yes:
-                QtCore.QCoreApplication.quit()
+                self.on_action_quit(force=True)
 
     @QtCore.pyqtSlot()
     def on_action_close(self):
@@ -192,8 +192,8 @@ class DCTag(QtWidgets.QMainWindow):
             self.session_open(path)
 
     @QtCore.pyqtSlot()
-    def on_action_quit(self):
-        if self.session_close():
+    def on_action_quit(self, force=True):
+        if force or self.session_close():
             QtCore.QCoreApplication.quit()
 
     @QtCore.pyqtSlot()
