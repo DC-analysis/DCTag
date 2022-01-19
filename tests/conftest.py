@@ -23,6 +23,7 @@ def pytest_configure(config):
     QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
     settings = QtCore.QSettings()
     settings.setValue("user/name", "dctag-tester")
+    settings.setValue("debug/without timers", "1")
 
 
 def pytest_unconfigure(config):
@@ -37,3 +38,4 @@ def pytest_unconfigure(config):
     QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
     settings = QtCore.QSettings()
     settings.remove("user/name")
+    settings.remove("debug/without timers")
