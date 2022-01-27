@@ -15,3 +15,5 @@ Here I will describe what is happening in detail. Also refer to commit messages.
 - [ ] Write comprehensive docstrings for all new functions and classes
 - [ ] Write unit tests for any new code
 - [ ] Write scripts for any new feature that should be presented to the team
+- [ ] CI/CD pipeline passed
+- [ ] update CHANGELOG
