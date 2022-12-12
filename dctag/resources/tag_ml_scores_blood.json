@@ -11,8 +11,12 @@
     "label": "Nucleated RBC",
     "shortcut": "Ctrl+N"
     },
+  "ml_score_r1r": {
+    "label": "RBC singlet round",
+    "shortcut": "Alt+R"
+    },
   "ml_score_r1s": {
-    "label": "RBC singlet stiff",
+    "label": "RBC singlet strange",
     "shortcut": "Ctrl+S"
     },
   "ml_score_r20": {
@@ -80,7 +84,7 @@
     "shortcut": "Ctrl+2"
     },
   "ml_score_tn0": {
-    "label": "Thrombocyte multiple",
+    "label": "Thrombocyte multiple without cells",
     "shortcut": "Shift+T"
     },
   "ml_score_tnr": {
@@ -91,13 +95,13 @@
     "label": "Thrombocyte multiple and one WBC",
     "shortcut": "Ctrl+V"
     },
+  "ml_score_tnm": {
+    "label": "Thrombocyte(s) with two or more cells",
+    "shortcut": "Alt+M"
+    },
   "ml_score_m20": {
     "label": "Mixed cell doublet",
     "shortcut": "Alt+2"
-    },
-  "ml_score_mnt": {
-    "label": "(Mixed) cell doublet with thrombocyte(s)",
-    "shortcut": "Alt+M"
     },
   "ml_score_m30": {
     "label": "Mixed cell triplet",
@@ -112,7 +116,7 @@
     "shortcut": "Shift+M"
     },
   "ml_score_mn0": {
-    "label": "Mixed cell multiple",
+    "label": "Mixed cell multiple without thrombocyte(s)",
     "shortcut": "Alt+0"
     },
   "ml_score_n10": {
