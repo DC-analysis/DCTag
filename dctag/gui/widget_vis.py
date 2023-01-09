@@ -194,6 +194,8 @@ class WidgetVisualize(QtWidgets.QWidget):
                 range_t = [fl_time[0], fl_time[-1], 0]
                 # fluorescence intensity
                 range_fl = [0, 0]
+                # clear Legend
+                self.legend_trace.clear()
                 for key in dclab.dfn.FLUOR_TRACES:
                     if key in ds["trace"]:
                         # show the trace information

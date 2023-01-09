@@ -209,7 +209,7 @@
   <customwidget>
    <class>SimpleImageView</class>
    <extends>QGraphicsView</extends>
-   <header>dctag.gui.simple_image_view</header>
+   <header>dctag.gui.widget_img</header>
   </customwidget>
   <customwidget>
    <class>ScatterPlotWidget</class>
