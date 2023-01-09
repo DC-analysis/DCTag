@@ -203,7 +203,9 @@ class WidgetVisualize(QtWidgets.QWidget):
                         self.trace_plots[key].setData(fl_time, tracey)
                         self.trace_plots[key].show()
                         # set legend name
-                        ln = "{} {}".format("FL-{}".format(key[2]), 'median' if str(key[4]) == 'm' else 'raw')
+                        ln = "{} {}".format(
+                            "FL-{}".format(key[2]),
+                            'median' if str(key[4]) == 'm' else 'raw')
                         self.legend_trace.addItem(self.trace_plots[key], ln)
                         self.legend_trace.update()
                     else:
@@ -244,4 +246,3 @@ def get_cropped_image(event_data):
     right = left + width
     cropped = image[:, left:right]
     return cropped
-
