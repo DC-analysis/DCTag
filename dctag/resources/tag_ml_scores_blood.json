@@ -87,6 +87,14 @@
     "label": "Thrombocyte multiple without cells",
     "shortcut": "Shift+T"
     },
+  "ml_score_tns": {
+    "label": "Thrombocyte cluster - small",
+    "shortcut": "Shift+N"
+    },
+  "ml_score_tnl": {
+    "label": "Thrombocyte cluster - large",
+    "shortcut": "Shift+L"
+    },
   "ml_score_tnr": {
     "label": "Thrombocyte multiple and one RBC",
     "shortcut": "Ctrl+Z"
