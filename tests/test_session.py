@@ -558,7 +558,7 @@ def test_session_error_wronguser_override():
         assert h5["logs/dctag-history"][0].decode("utf8") == "user: Hans"
         for line in h5["logs/dctag-history"][:]:
             line = line.decode("utf-8")
-            if line.count("Session reclaimed from Peter by Hans."):
+            if line.count("Session force-claimed from Peter by Hans."):
                 break
         else:
             assert False, "session-claim string missing in log"
