@@ -15,10 +15,6 @@
     "label": "RBC singlet round",
     "shortcut": "Alt+R"
     },
-  "ml_score_r1s": {
-    "label": "[DEPRECATED] RBC singlet strange",
-    "shortcut": "Ctrl+S"
-    },
   "ml_score_r20": {
     "label": "RBC doublet",
     "shortcut": "Shift+2"
@@ -31,17 +27,9 @@
     "label": "RBC multiple",
     "shortcut": "Shift+R"
     },
-  "ml_score_w10": {
-    "label": "[DEPRECATED] WBC singlet",
-    "shortcut": "W"
-    },
   "ml_score_l10": {
     "label": "WBC - Lymphocyte",
     "shortcut": "L"
-    },
-  "ml_score_g10": {
-    "label": "[DEPRECATED] WBC - Granulomonocyte",
-    "shortcut": "G"
     },
   "ml_score_g1n": {
     "label": "WBC - Neutrophil",
@@ -58,10 +46,6 @@
   "ml_score_g1m": {
     "label": "WBC - Monocytes",
     "shortcut": "M"
-    },
-  "ml_score_w20": {
-    "label": "[DEPRECATED] WBC doublet",
-    "shortcut": "Ctrl+W"
     },
   "ml_score_wn0": {
     "label": "WBC multiple (two or more)",
@@ -83,10 +67,6 @@
     "label": "Thrombocyte and WBC",
     "shortcut": "Ctrl+2"
     },
-  "ml_score_tn0": {
-    "label": "[DEPRECATED] Thrombocyte multiple without cells",
-    "shortcut": "Shift+T"
-    },
   "ml_score_tns": {
     "label": "Thrombocyte cluster - small",
     "shortcut": "Shift+N"
@@ -107,7 +87,39 @@
     "label": "Thrombocyte(s) with two or more cells",
     "shortcut": "Alt+M"
     },
-  "ml_score_m20": {
+  "ml_score_mn0": {
+    "label": "Mixed cells multiple with no or little thrombocyte(s)",
+    "shortcut": "Alt+0"
+    },
+  "ml_score_n10": {
+    "label": "Nucleus",
+    "shortcut": "C"
+    },
+  "ml_score_buk": {
+    "label": "unknown/walls/chip damage",
+    "shortcut": "U"
+    },
+  "ml_score_r1s": {
+    "label": "[DEPRECATED] RBC singlet strange",
+    "shortcut": "Ctrl+S"
+    },
+  "ml_score_w10": {
+    "label": "[DEPRECATED] WBC singlet",
+    "shortcut": "W"
+    },
+  "ml_score_g10": {
+    "label": "[DEPRECATED] WBC - Granulomonocyte",
+    "shortcut": "G"
+    },
+  "ml_score_w20": {
+    "label": "[DEPRECATED] WBC doublet",
+    "shortcut": "Ctrl+W"
+    },
+  "ml_score_tn0": {
+    "label": "[DEPRECATED] Thrombocyte multiple without cells",
+    "shortcut": "Shift+T"
+    },
+    "ml_score_m20": {
     "label": "[DEPRECATED] Mixed cell doublet",
     "shortcut": "Alt+2"
     },
@@ -123,14 +135,6 @@
     "label": "[DEPRECATED] Mixed cell triplet: 1 RBC with 2 WBCs",
     "shortcut": "Shift+M"
     },
-  "ml_score_mn0": {
-    "label": "Mixed cells multiple with no or little thrombocyte(s)",
-    "shortcut": "Alt+0"
-    },
-  "ml_score_n10": {
-    "label": "Nucleus",
-    "shortcut": "C"
-    },
   "ml_score_ds0": {
     "label": "[DEPRECATED] Small debris",
     "shortcut": "D"
@@ -138,9 +142,5 @@
   "ml_score_dl0": {
     "label": "[DEPRECATED] Large debris",
     "shortcut": "Shift+D"
-    },
-  "ml_score_buk": {
-    "label": "unknown/walls/chip damage",
-    "shortcut": "U"
     }
 }
