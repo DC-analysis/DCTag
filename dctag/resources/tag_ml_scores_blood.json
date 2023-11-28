@@ -60,11 +60,11 @@
     "shortcut": "Ctrl+T"
     },
   "ml_score_t1r": {
-    "label": "Thrombocyte and RBC",
+    "label": "RBC and a small amount of thrombocyte(s)",
     "shortcut": "Ctrl+3"
     },
   "ml_score_t1w": {
-    "label": "Thrombocyte and WBC",
+    "label": "WBC and a small amount of thrombocyte(s)",
     "shortcut": "Ctrl+2"
     },
   "ml_score_tns": {
