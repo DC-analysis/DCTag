@@ -16,15 +16,15 @@
     "shortcut": "Alt+R"
     },
   "ml_score_r20": {
-    "label": "RBC doublet",
+    "label": "RBC doublet with no or small amount of thrombocyte(s)",
     "shortcut": "Shift+2"
     },
   "ml_score_r30": {
-    "label": "RBC triplet",
+    "label": "RBC triplet with no or small amount of thrombocyte(s)",
     "shortcut": "Shift+3"
     },
   "ml_score_rn0": {
-    "label": "RBC multiple",
+    "label": "RBC multiple with no or small amount of thrombocyte(s)",
     "shortcut": "Shift+R"
     },
   "ml_score_l10": {
