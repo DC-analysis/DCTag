@@ -48,7 +48,7 @@
     "shortcut": "M"
     },
   "ml_score_wn0": {
-    "label": "WBC multiple (two or more)",
+    "label": "WBC multiple with no or small amount of thrombocyte(s)",
     "shortcut": "Shift+W"
     },
   "ml_score_t1f": {
