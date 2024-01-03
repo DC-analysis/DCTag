@@ -31,6 +31,10 @@
     "label": "WBC - Lymphocyte",
     "shortcut": "L"
     },
+   "ml_score_w10": {
+    "label": "WBC singlet",
+    "shortcut": "W"
+    },
   "ml_score_g1n": {
     "label": "WBC - Neutrophil",
     "shortcut": "N"
@@ -102,10 +106,6 @@
   "ml_score_r1s": {
     "label": "[DEPRECATED] RBC singlet strange",
     "shortcut": "Ctrl+S"
-    },
-  "ml_score_w10": {
-    "label": "[DEPRECATED] WBC singlet",
-    "shortcut": "W"
     },
   "ml_score_g10": {
     "label": "[DEPRECATED] WBC - Granulomonocyte",
