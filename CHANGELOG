@@ -1,6 +1,7 @@
+0.7.2
+ - ref: change organization domain to dc-cosmos.org
 0.7.1
  - ref: correct cell class description in json file
- - ref: change organization domain to dc-cosmos.org
 0.7.0
  - feat: allow to claim a session by another user
  - enh: show ml_score identifiers in dropdown lists
