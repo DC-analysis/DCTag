@@ -21,7 +21,7 @@ def run_around_tests():
     # Code that will run after your test
     # restore dctag-tester for other tests
     QtCore.QCoreApplication.setOrganizationName("MPL")
-    QtCore.QCoreApplication.setOrganizationDomain("mpl.mpg.de")
+    QtCore.QCoreApplication.setOrganizationDomain("dc-cosmos.org")
     QtCore.QCoreApplication.setApplicationName("dctag")
     QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
     settings = QtCore.QSettings()

@@ -19,7 +19,7 @@ def pytest_configure(config):
 
     # Default settings
     QtCore.QCoreApplication.setOrganizationName("MPL")
-    QtCore.QCoreApplication.setOrganizationDomain("mpl.mpg.de")
+    QtCore.QCoreApplication.setOrganizationDomain("dc-cosmos.org")
     QtCore.QCoreApplication.setApplicationName("dctag")
     QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
     settings = QtCore.QSettings()
@@ -34,7 +34,7 @@ def pytest_unconfigure(config):
     called before test process is exited.
     """
     QtCore.QCoreApplication.setOrganizationName("MPL")
-    QtCore.QCoreApplication.setOrganizationDomain("mpl.mpg.de")
+    QtCore.QCoreApplication.setOrganizationDomain("dc-cosmos.org")
     QtCore.QCoreApplication.setApplicationName("dctag")
     QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
     settings = QtCore.QSettings()

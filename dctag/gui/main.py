@@ -35,7 +35,7 @@ class DCTag(QtWidgets.QMainWindow):
         # Some promoted widgets need the below constants set in order
         # to access the settings upon initialization.
         QtCore.QCoreApplication.setOrganizationName("MPL")
-        QtCore.QCoreApplication.setOrganizationDomain("mpl.mpg.de")
+        QtCore.QCoreApplication.setOrganizationDomain("dc-cosmos.org")
         QtCore.QCoreApplication.setApplicationName("dctag")
         QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
 
