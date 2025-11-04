@@ -1,0 +1,49 @@
+[build-system]
+# Defined by PEP 518:
+requires = [
+    # for version management
+    "setuptools>=64", "setuptools_scm[toml]>=8"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dctag"
+authors = [
+    # In alphabetical order.
+    {name = "Eoghan O'Connell"},
+    {name = "Maximilian Schlögel"},
+    {name = "Paul Müller"},
+    {name = "Shada Abuhattum"},
+]
+maintainers = [
+    {name = "Paul Müller", email="dev@craban.de"},
+]
+description = "Annotate .rtdc files for machine-learning training in deformability cytometry"
+requires-python = ">=3.10, <4"
+keywords = ["RT-DC", "DC", "deformability", "cytometry", "machine-learning"]
+classifiers = [
+    'Operating System :: OS Independent',
+    'Programming Language :: Python :: 3',
+    'Intended Audience :: Science/Research',
+]
+license = "GPL-3.0-or-later"
+dependencies = [
+    "dclab>=0.55.6",
+    "h5py>=3.0.0",
+    "numpy>=1.21",
+    "pyqt5",
+    "pyqtgraph==0.13.1",
+]
+dynamic = ["version"]
+
+[project.scripts]
+dctag = "dctag.__main__:main"
+
+[project.urls]
+source = "https://github.com/DC-analysis/DCTag"
+tracker = "https://github.com/DC-analysis/DCTag/issues"
+changelog = "https://github.com/DC-analysis/DCTag/blob/main/CHANGELOG"
+
+[tool.setuptools_scm]
+write_to = "dctag/_version.py"
+version_scheme = "post-release"
