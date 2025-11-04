@@ -652,7 +652,9 @@ def test_session_warning_closed_close():
     dts.close()
     with pytest.warns(session.DCTagSessionClosedWarning,
                       match="close the session"):
-        dts.close()
+        with pytest.warns(session.DCTagSessionClosedWarning,
+                          match="flush the session"):
+            dts.close()
 
 
 def test_session_warning_closed_flush():
