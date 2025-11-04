@@ -1,4 +1,4 @@
-import pkg_resources
+import importlib.resources
 
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, uic
@@ -14,9 +14,9 @@ class TabBinaryLabel(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(TabBinaryLabel, self).__init__(*args, **kwargs)
 
-        ui_file = pkg_resources.resource_filename(
-            'dctag.gui', 'tab_binary.ui')
-        uic.loadUi(ui_file, self)
+        ref = importlib.resources.files("dctag.gui") / "tab_binary.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, self)
 
         self.session = None
         self.event_index = 0

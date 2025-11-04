@@ -1,4 +1,4 @@
-import pkg_resources
+import importlib.resources
 
 import numpy as np
 from PyQt5 import QtCore, QtWidgets, uic
@@ -103,9 +103,9 @@ class TabMultiClassLabel(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(TabMultiClassLabel, self).__init__(*args, **kwargs)
 
-        ui_file = pkg_resources.resource_filename(
-            'dctag.gui', 'tab_multiple.ui')
-        uic.loadUi(ui_file, self)
+        ref = importlib.resources.files("dctag.gui") / "tab_multiple.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, self)
 
         self.session = None
         self.event_index = 0

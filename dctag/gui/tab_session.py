@@ -1,4 +1,5 @@
-import pkg_resources
+import importlib.resources
+
 from PyQt5 import QtWidgets, uic
 
 import dclab
@@ -10,9 +11,9 @@ class TabSessionInfo(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(TabSessionInfo, self).__init__(*args, **kwargs)
 
-        ui_file = pkg_resources.resource_filename(
-            'dctag.gui', 'tab_session.ui')
-        uic.loadUi(ui_file, self)
+        ref = importlib.resources.files("dctag.gui") / "tab_session.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, self)
 
     def update_session(self, session):
         """Update this widget with the session info"""

@@ -1,5 +1,5 @@
 import functools
-import pkg_resources
+import importlib.resources
 
 import dclab
 import numpy as np
@@ -32,9 +32,9 @@ class WidgetVisualize(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super(WidgetVisualize, self).__init__(*args, **kwargs)
 
-        ui_file = pkg_resources.resource_filename(
-            'dctag.gui', 'widget_vis.ui')
-        uic.loadUi(ui_file, self)
+        ref = importlib.resources.files("dctag.gui") / "widget_vis.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, self)
 
         self.session = None
 

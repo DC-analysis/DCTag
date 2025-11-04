@@ -1,6 +1,6 @@
 import getpass
+import importlib.resources
 import pathlib
-import pkg_resources
 import signal
 import sys
 import time
@@ -62,8 +62,10 @@ class DCTag(QtWidgets.QMainWindow):
         self.settings.setValue("user/name", username)
 
         # initialize UI
-        path_ui = pkg_resources.resource_filename("dctag.gui", "main.ui")
-        uic.loadUi(path_ui, self)
+        ref = importlib.resources.files("dctag.gui") / "main.ui"
+        with importlib.resources.as_file(ref) as path_ui:
+            uic.loadUi(path_ui, self)
+
         self.set_title()
         # Disable native menubar (e.g. on Mac)
         self.menubar.setNativeMenuBar(False)
