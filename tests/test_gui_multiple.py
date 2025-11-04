@@ -4,9 +4,9 @@ from unittest import mock
 from PyQt5 import QtCore, QtWidgets
 import pytest
 
-from dctag.gui.main import DCTag
 from dctag import session
 from .helper import get_clean_data_path
+from .helper import mw as _mw  # noqa: F401
 
 
 data_dir = pathlib.Path(__file__).parent / "data"
@@ -30,15 +30,11 @@ def run_around_tests():
     QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
 
 
-def test_empty_session(qtbot):
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
+def test_empty_session(mw):
     # select multiple tab
     mw.tabWidget.setCurrentIndex(2)
     # make sure things are disabled
     assert not mw.tab_multiple.isEnabled()
-    mw.close()
 
 
 @pytest.mark.parametrize("event_index,expected", [
@@ -49,11 +45,8 @@ def test_empty_session(qtbot):
     [17, 17],
     [18, 17],
     [5000, 17]])
-def test_goto_event_limits(event_index, expected, qtbot):
+def test_goto_event_limits(event_index, expected, qtbot, mw):
     path = get_clean_data_path()
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -72,10 +65,9 @@ def test_goto_event_limits(event_index, expected, qtbot):
     # go to event
     mw.tab_multiple.goto_event(event_index)
     assert mw.tab_multiple.event_index == expected
-    mw.close()
 
 
-def test_goto_event_button_labels(qtbot):
+def test_goto_event_button_labels(qtbot, mw):
     path = get_clean_data_path()
     with session.DCTagSession(path, "dctag-tester") as dts:
         dts.set_score("ml_score_r1f", 0, True)
@@ -84,9 +76,6 @@ def test_goto_event_button_labels(qtbot):
         dts.set_score("ml_score_r1f", 3, False)
         dts.set_score("ml_score_r1u", 3, True)
 
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select multiple tab
     mw.tabWidget.setCurrentIndex(2)
@@ -125,10 +114,9 @@ def test_goto_event_button_labels(qtbot):
     assert br1u.pushButton.text() == "[R1U]"
     assert mw.tab_multiple.label_score_prev.text() == "R1F"
     assert mw.tab_multiple.label_score_next.text() == "nan"
-    mw.close()
 
 
-def test_lock_in_twice(qtbot):
+def test_lock_in_twice(qtbot, mw):
     path = get_clean_data_path()
     with session.DCTagSession(path, "dctag-tester") as dts:
         dts.set_score("ml_score_r1f", 0, True)
@@ -137,9 +125,6 @@ def test_lock_in_twice(qtbot):
         dts.set_score("ml_score_r1f", 3, False)
         dts.set_score("ml_score_r1u", 3, True)
 
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select multiple tab
     mw.tabWidget.setCurrentIndex(2)
@@ -169,10 +154,9 @@ def test_lock_in_twice(qtbot):
     assert br1f.pushButton.text() == "[R1F]"
     assert br1u.pushButton.text() == "!R1U"  # because it auto-filled!
     assert br1n.pushButton.text() == "!R1N"  # because it auto-filled!
-    mw.close()
 
 
-def test_event_push_buttons(qtbot):
+def test_event_push_buttons(qtbot, mw):
     path = get_clean_data_path()
     with session.DCTagSession(path, "dctag-tester") as dts:
         dts.set_score("ml_score_r1f", 0, True)
@@ -182,9 +166,6 @@ def test_event_push_buttons(qtbot):
         dts.set_score("ml_score_r1f", 3, False)
         dts.set_score("ml_score_r1u", 3, True)
 
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select multiple tab
     mw.tabWidget.setCurrentIndex(2)
@@ -243,16 +224,13 @@ def test_event_push_buttons(qtbot):
     qtbot.mouseClick(mw.tab_multiple.pushButton_fast_next,
                      QtCore.Qt.LeftButton)
     assert mw.tab_multiple.event_index == 17
-    mw.close()
 
 
-def test_start_without_events_checked(qtbot, monkeypatch):
+def test_start_without_events_checked(qtbot, monkeypatch, mw):
     path = get_clean_data_path()
     with session.DCTagSession(path, "dctag-tester"):
         pass
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
+
     mw.on_action_open(path)
     # select multiple tab
     mw.tabWidget.setCurrentIndex(2)
@@ -272,10 +250,8 @@ def test_start_without_events_checked(qtbot, monkeypatch):
     [17, 17],
     [18, 17],
     [5000, 17]])
-def test_on_spin(event_index, expected, qtbot):
+def test_on_spin(event_index, expected, qtbot, mw):
     path = get_clean_data_path()
-    mw = DCTag()
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -289,7 +265,6 @@ def test_on_spin(event_index, expected, qtbot):
     mw.tab_multiple.spinBox_jump_to.setValue(event_index + 1)
     # check if event_index is updated correspondingly
     assert mw.tab_multiple.event_index == expected
-    mw.close()
 
 
 @pytest.mark.parametrize("event_index,expected", [
@@ -300,10 +275,8 @@ def test_on_spin(event_index, expected, qtbot):
     [17, 17],
     [18, 17],
     [5000, 17]])
-def test_update_spinBox(event_index, expected, qtbot):
+def test_update_spinBox(event_index, expected, qtbot, mw):
     path = get_clean_data_path()
-    mw = DCTag()
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -317,4 +290,3 @@ def test_update_spinBox(event_index, expected, qtbot):
     mw.tab_multiple.goto_event(event_index)
     # check if spinBox is updated correspondingly
     assert mw.tab_multiple.spinBox_jump_to.value() == expected + 1
-    mw.close()

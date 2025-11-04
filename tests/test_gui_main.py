@@ -9,9 +9,11 @@ import pytest
 from PyQt5 import QtCore, QtWidgets
 
 import dctag
-from dctag.gui.main import DCTag
 from dctag import session
+from dctag.gui.main import DCTag
+
 from .helper import get_clean_data_path
+from .helper import mw as _mw  # noqa: F401
 
 
 data_dir = pathlib.Path(__file__).parent / "data"
@@ -36,12 +38,9 @@ def run_around_tests():
 
 
 @pytest.mark.parametrize("with_delete", [True, False])
-def test_action_backup(with_delete, qtbot):
+def test_action_backup(with_delete, qtbot, mw):
     # setup a nice session
     path = get_clean_data_path()
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -76,25 +75,17 @@ def test_action_backup(with_delete, qtbot):
         assert np.isnan(h5["ml_score_r1f"][3])
     # cleanup
     mw.session = None
-    mw.close()
 
 
-def test_basic(qtbot):
+def test_basic(qtbot, mw):
     """Run the program and exit"""
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     time.sleep(.5)
     QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
-    mw.close()
 
 
-def test_clear_session(qtbot):
+def test_clear_session(mw):
     """Clearing the session should not cause any trouble"""
     path = get_clean_data_path()
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -112,7 +103,6 @@ def test_clear_session(qtbot):
     assert not mw.tab_binary.session
     assert not mw.tab_binary.widget_vis.session
     mw.tabWidget.setCurrentIndex(2)
-    mw.close()
 
 
 def test_init_get_username(qtbot):
@@ -127,7 +117,10 @@ def test_init_get_username(qtbot):
 
     with mock.patch.object(QtWidgets.QInputDialog, "getText",
                            return_value=("peter", True)):
-        DCTag()
+        mw = DCTag()
+        mw.close()
+        QtWidgets.QApplication.processEvents(
+            QtCore.QEventLoop.ProcessEventsFlag.AllEvents, 200)
 
     assert settings.value("user/name") == "peter"
 
@@ -146,6 +139,8 @@ def test_init_get_username_abort(qtbot):
                            return_value=("hans", False)):
         with pytest.raises(SystemExit):
             DCTag()
+    QtWidgets.QApplication.processEvents(
+        QtCore.QEventLoop.ProcessEventsFlag.AllEvents, 200)
 
     assert settings.value("user/name") is None
 
@@ -159,6 +154,8 @@ def test_init_print_version(qtbot):
             with mock.patch('sys.stdout', mock_stdout):
                 mw = DCTag("--version")
                 mw.close()
+                QtWidgets.QApplication.processEvents(
+                    QtCore.QEventLoop.ProcessEventsFlag.AllEvents, 200)
 
     assert mock_exit.call_args.args[0] == 0
     assert mock_stdout.getvalue().strip() == dctag.__version__

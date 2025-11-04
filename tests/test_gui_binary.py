@@ -3,9 +3,10 @@ import pathlib
 from PyQt5 import QtCore, QtWidgets
 import pytest
 
-from dctag.gui.main import DCTag
 from dctag import session
+from dctag.gui.main import DCTag
 from .helper import get_clean_data_path
+from .helper import mw as _mw  # noqa: F401
 
 
 data_dir = pathlib.Path(__file__).parent / "data"
@@ -29,15 +30,12 @@ def run_around_tests():
     QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
 
 
-def test_empty_session(qtbot):
-    mw = DCTag()
-    qtbot.addWidget(mw)
+def test_empty_session(mw):
     QtWidgets.QApplication.setActiveWindow(mw)
     # select binary tab
     mw.tabWidget.setCurrentIndex(1)
     # make sure things are disabled
     assert not mw.tab_binary.isEnabled()
-    mw.close()
 
 
 @pytest.mark.parametrize("event_index,expected", [
@@ -48,11 +46,8 @@ def test_empty_session(qtbot):
     [17, 17],
     [18, 17],
     [5000, 17]])
-def test_goto_event_limits(event_index, expected, qtbot):
+def test_goto_event_limits(event_index, expected, qtbot, mw):
     path = get_clean_data_path()
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -66,10 +61,9 @@ def test_goto_event_limits(event_index, expected, qtbot):
     # go to event
     mw.tab_binary.goto_event(event_index)
     assert mw.tab_binary.event_index == expected
-    mw.close()
 
 
-def test_goto_event_button_labels(qtbot):
+def test_goto_event_button_labels(qtbot, mw):
     path = get_clean_data_path()
     with session.DCTagSession(path, "dctag-tester") as dts:
         dts.set_score("ml_score_r1f", 0, True)
@@ -77,9 +71,6 @@ def test_goto_event_button_labels(qtbot):
         dts.set_score("ml_score_r1f", 2, True)
         dts.set_score("ml_score_r1f", 3, False)
 
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select binary tab
     mw.tabWidget.setCurrentIndex(1)
@@ -102,7 +93,6 @@ def test_goto_event_button_labels(qtbot):
     assert mw.tab_binary.pushButton_no.text() == "[No]"
     assert mw.tab_binary.label_score_prev.text() == "Yes"
     assert mw.tab_binary.label_score_next.text() == "Yes"
-    mw.close()
 
 
 def test_goto_event_button_labels_userdef(qtbot):
@@ -145,7 +135,7 @@ def test_goto_event_button_labels_userdef(qtbot):
     settings.setValue("labeling group", "ml_scores_blood")
 
 
-def test_event_push_buttons(qtbot):
+def test_event_push_buttons(qtbot, mw):
     path = get_clean_data_path()
     with session.DCTagSession(path, "dctag-tester") as dts:
         dts.set_score("ml_score_r1f", 0, True)
@@ -153,9 +143,6 @@ def test_event_push_buttons(qtbot):
         dts.set_score("ml_score_r1f", 2, True)
         dts.set_score("ml_score_r1f", 3, False)
 
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select binary tab
     mw.tabWidget.setCurrentIndex(1)
@@ -203,10 +190,9 @@ def test_event_push_buttons(qtbot):
     assert mw.tab_binary.event_index == 15
     qtbot.mouseClick(mw.tab_binary.pushButton_fast_next, QtCore.Qt.LeftButton)
     assert mw.tab_binary.event_index == 17
-    mw.close()
 
 
-def test_session_load(qtbot):
+def test_session_load(qtbot, mw):
     """Load an .rtdc file with labeled data"""
     path = get_clean_data_path()
     with session.DCTagSession(path, "dctag-tester") as dts:
@@ -221,9 +207,6 @@ def test_session_load(qtbot):
         assert dts.get_scores_true(3) == ["ml_score_r1f", "ml_score_r1u"]
         assert dts.get_scores_true(4) == []
 
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     mw.on_action_open(path)
     # select binary tab
     mw.tabWidget.setCurrentIndex(1)
@@ -244,7 +227,6 @@ def test_session_load(qtbot):
     assert mw.tab_binary.pushButton_yes.text() == "Yes"
     assert mw.tab_binary.pushButton_no.text() == "No"
     assert mw.tab_binary.label_score_next.text() == "Yes"
-    mw.close()
 
 
 @pytest.mark.parametrize("event_index,expected", [
@@ -255,10 +237,8 @@ def test_session_load(qtbot):
     [17, 17],
     [18, 17],
     [5000, 17]])
-def test_on_spin(event_index, expected, qtbot):
+def test_on_spin(event_index, expected, qtbot, mw):
     path = get_clean_data_path()
-    mw = DCTag()
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -272,7 +252,6 @@ def test_on_spin(event_index, expected, qtbot):
     mw.tab_binary.spinBox_jump_to.setValue(event_index + 1)
     # check if event_index is updated correspondingly
     assert mw.tab_binary.event_index == expected
-    mw.close()
 
 
 @pytest.mark.parametrize("event_index,expected", [
@@ -283,10 +262,8 @@ def test_on_spin(event_index, expected, qtbot):
     [17, 17],
     [18, 17],
     [5000, 17]])
-def test_update_spinBox(event_index, expected, qtbot):
+def test_update_spinBox(event_index, expected, qtbot, mw):
     path = get_clean_data_path()
-    mw = DCTag()
-    QtWidgets.QApplication.setActiveWindow(mw)
     # claim session
     with session.DCTagSession(path, "dctag-tester"):
         pass
@@ -300,4 +277,3 @@ def test_update_spinBox(event_index, expected, qtbot):
     mw.tab_binary.goto_event(event_index)
     # check if spinBox is updated correspondingly
     assert mw.tab_binary.spinBox_jump_to.value() == expected + 1
-    mw.close()

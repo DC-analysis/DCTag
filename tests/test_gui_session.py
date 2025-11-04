@@ -3,9 +3,9 @@ import pathlib
 from PyQt5 import QtCore, QtWidgets
 import pytest
 
-from dctag.gui.main import DCTag
 from dctag import session
 from .helper import get_clean_data_path
+from .helper import mw as _mw  # noqa: F401
 
 
 data_dir = pathlib.Path(__file__).parent / "data"
@@ -29,11 +29,8 @@ def run_around_tests():
     QtWidgets.QApplication.processEvents(QtCore.QEventLoop.AllEvents, 3000)
 
 
-def test_error_session(qtbot):
+def test_error_session(qtbot, mw):
     path = get_clean_data_path()
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     with session.DCTagSession(path, "dctag-tester") as dts:
         dts.set_score("ml_score_r1f", 0, True)
     # open session
@@ -45,15 +42,11 @@ def test_error_session(qtbot):
     mw.tabWidget.setCurrentIndex(0)
     assert mw.tab_session.plainTextEdit_logs.toPlainText().startswith(
         "Cannot get logs from")
-    mw.close()
 
 
-def test_view_session(qtbot):
+def test_view_session(qtbot, mw):
     """Clearing the session should not cause any trouble"""
     path = get_clean_data_path()
-    mw = DCTag()
-    qtbot.addWidget(mw)
-    QtWidgets.QApplication.setActiveWindow(mw)
     # make sure there is no session
     assert mw.tab_session.plainTextEdit_logs.toPlainText() == "No session."
     # claim session
@@ -68,4 +61,3 @@ def test_view_session(qtbot):
         "ml_score_r1f")
     mw.on_action_close()
     assert mw.tab_session.plainTextEdit_logs.toPlainText() == "No session."
-    mw.close()
