@@ -151,7 +151,7 @@ def test_init_print_version(qtbot):
     with mock.patch("sys.argv", ["--version"]):
         with mock.patch("sys.exit", mock_exit):
             with mock.patch('sys.stdout', mock_stdout):
-                mw = DCTag("--version")
+                mw = DCTag()
                 mw.close()
                 QtWidgets.QApplication.processEvents(
                     QtCore.QEventLoop.ProcessEventsFlag.AllEvents, 200)
