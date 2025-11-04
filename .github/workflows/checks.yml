@@ -52,3 +52,14 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 --exclude _version.py .
+    - name: Test with pytest
+      run: |
+        coverage run --source=dctag -m pytest tests
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      # FIXME Limit runtime until
+      # https://github.com/codecov/codecov-action/issues/1316 is resolved
+      timeout-minutes: 1
+      continue-on-error: true
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}

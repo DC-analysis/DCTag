@@ -1,4 +1,5 @@
 0.8.0
+ - fix: do not ask for username when '--version' is specified
  - ref: change organization domain to dc-cosmos.org
  - tests: make sure GUI teardown takes place
  - setup: publish code on GitHub

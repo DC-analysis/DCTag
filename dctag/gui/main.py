@@ -25,7 +25,7 @@ pg.setConfigOption("imageAxisOrder", "row-major")
 
 
 class DCTag(QtWidgets.QMainWindow):
-    def __init__(self, check_update=True):
+    def __init__(self):
         super(DCTag, self).__init__()
 
         # Settings are stored in the .ini file format. Even though
@@ -38,6 +38,13 @@ class DCTag(QtWidgets.QMainWindow):
         QtCore.QCoreApplication.setOrganizationDomain("dc-cosmos.org")
         QtCore.QCoreApplication.setApplicationName("dctag")
         QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+
+        # if "--version" was specified, print the version and exit
+        if "--version" in sys.argv:
+            print(version)
+            QtWidgets.QApplication.processEvents(
+                QtCore.QEventLoop.AllEvents, 300)
+            sys.exit(0)
 
         #: DCOR-Aid settings
         self.settings = QtCore.QSettings()
@@ -88,12 +95,6 @@ class DCTag(QtWidgets.QMainWindow):
         #: holds the current DCTagSession instance
         self.session = None
 
-        # if "--version" was specified, print the version and exit
-        if "--version" in sys.argv:
-            print(version)
-            QtWidgets.QApplication.processEvents(
-                QtCore.QEventLoop.AllEvents, 300)
-            sys.exit(0)
         self.show()
         self.raise_()
         self.activateWindow()
