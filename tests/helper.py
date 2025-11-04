@@ -13,3 +13,7 @@ def get_clean_data_path():
     new = pathlib.Path(tdir) / orig.name
     shutil.copy2(orig, new)
     return new
+
+
+def get_raw_string(some_string):
+    return f"{some_string}".encode('unicode_escape').decode()

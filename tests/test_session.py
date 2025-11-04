@@ -6,7 +6,7 @@ import numpy as np
 
 from dctag import session
 
-from .helper import get_clean_data_path
+from .helper import get_clean_data_path, get_raw_string
 
 
 def test_basic():
@@ -29,12 +29,13 @@ def test_is_dctag_session():
 def test_flush_with_missing_file_error():
     path = get_clean_data_path()
     # error should be raised on flush and on __exit__
-    with pytest.raises(session.DCTagSessionWriteError, match=fr"{path}"):
+    with pytest.raises(session.DCTagSessionWriteError,
+                       match=get_raw_string(path)):
         with session.DCTagSession(path, "Peter") as dts:
             dts.set_score("ml_score_abc", 0, True)
             path.unlink()
             with pytest.raises(session.DCTagSessionWriteError,
-                               match=fr"{path}"):
+                               match=get_raw_string(path)):
                 dts.flush()
 
 
@@ -529,7 +530,8 @@ def test_session_error_locked():
     lock_path = path.with_suffix(".dctag")
     lock_path.touch()
     # make sure the session cannot be opened if it is locked
-    with pytest.raises(session.DCTagSessionLockedError, match=fr"{path}"):
+    with pytest.raises(session.DCTagSessionLockedError,
+                       match=get_raw_string(path)):
         with session.DCTagSession(path, "Peter"):
             pass
     # make sure the lock file is not removed by context manager
