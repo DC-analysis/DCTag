@@ -2,8 +2,7 @@ import importlib.resources
 
 import numpy as np
 from PyQt6 import QtCore, QtWidgets, uic
-from PyQt6.QtGui import QKeySequence
-from PyQt6.QtWidgets import QShortcut
+from PyQt6.QtGui import QKeySequence, QShortcut
 
 from .. import scores
 

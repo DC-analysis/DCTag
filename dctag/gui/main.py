@@ -30,11 +30,11 @@ class DCTag(QtWidgets.QMainWindow):
         QtCore.QCoreApplication.setOrganizationName("MPL")
         QtCore.QCoreApplication.setOrganizationDomain("dc-cosmos.org")
         QtCore.QCoreApplication.setApplicationName("dctag")
-        QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+        QtCore.QSettings.setDefaultFormat(QtCore.QSettings.Format.IniFormat)
         # if "--version" was specified, print the version and exit
         if "--version" in sys.argv:
             QtWidgets.QApplication.processEvents(
-                QtCore.QEventLoop.AllEvents, 300)
+                QtCore.QEventLoop.ProcessEventsFlag.AllEvents, 300)
             sys.exit(0)
         #: DCOR-Aid settings
         self.settings = QtCore.QSettings()
